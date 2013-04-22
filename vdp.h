@@ -1,0 +1,282 @@
+// VDP header for the TI-99/4A by Tursi aka Mike Brent
+// 4/21/2013
+// This code and library released into the Public Domain
+// You can copy this file and use it at will ;)
+
+//*********************
+// VDP access ports
+//*********************
+
+// Read Data
+#define VDPRD	*((volatile unsigned char*)0x8800)
+// Read Status
+#define VDPST	*((volatile unsigned char*)0x8802)
+// Write Address/Register
+#define VDPWA	*((volatile unsigned char*)0x8C02)
+// Write Data
+#define VDPWD	*((volatile unsigned char*)0x8C00)
+
+//*********************
+// Inline VDP helpers
+//*********************
+
+// Set VDP address for read (no bit added)
+inline void VDP_SET_ADDRESS(unsigned int x)							{	VDPWA=((x)&0xff); VDPWA=((x)>>8);			}
+
+// Set VDP address for write (adds 0x4000 bit)
+inline void VDP_SET_ADDRESS_WRITE(unsigned int x)					{	VDPWA=((x)&0xff); VDPWA=(((x)>>8)|0x40);	}
+
+// Set VDP write-only register 'r' to value 'v'
+inline void VDP_SET_REGISTER(unsigned char r, unsigned char v)		{	VDPWA=(v); VDPWA=(0x80|(r));				}
+
+// get a screen offset for 32x24 graphics mode
+inline int VDP_SCREEN_POS(unsigned int r, unsigned int c)			{	return (((r)<<5)+(c));						}
+
+// get a screen offset for 40x24 text mode
+inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+((r)<<3)+(c));				}
+
+//*********************
+// VDP Console interrupt control
+//*********************
+
+// Interrupt counter - incremented each interrupt
+#define VDP_INT_COUNTER			*((volatile unsigned char*)0x8379)
+
+// Maximum number of sprites performing automatic motion
+#define VDP_SPRITE_MOTION_MAX	*((volatile unsigned char*)0x837a)
+
+// Copy of the VDP status byte. If VDP interrupts are enabled, you should read
+// this value, instead of reading it directly from the VDP.
+#define VDP_STATUS_MIRROR		*((volatile unsigned char*)0x837b)
+
+// This flag byte allows you to turn parts of the console interrupt handler on and off
+// See the VDP_INT_CTRL_* defines below
+#define VDP_INT_CTRL			*((volatile unsigned char*)0x83c2)
+
+// Address of a user-defined function to call during the vertical interrupt handler,
+// set to 0x0000 if not using
+#define VDP_INT_HOOK			*((volatile void**)0x83c4)
+
+// If using KSCAN, you must put a copy of VDP register 1 (returned by the 'set' functions)
+// at this address, otherwise the first time a key is pressed, the value will be overwritten.
+// The console uses this to undo the screen timeout blanking.
+#define VDP_REG1_KSCAN_MIRROR	*((volatile unsigned char*)0x83d4)
+
+// The console counts up the screen blank timeout here. You can reset it by writing 0,
+// or prevent it from ever triggering by writing an odd number. Each interrupt, it is
+// incremented by 2, and when the value reaches 0x0000, the screen will blank by setting
+// the blanking bit in VDP register 1.
+#define VDP_SCREEN_TIMEOUT		*((volatile unsigned int*)0x83d6)
+
+// These values are flags for the interrupt control 
+	// disable all processing (screen timeout and user interrupt are still processed)
+	#define VDP_INT_CTRL_DISABLE_ALL		0x80
+	// disable sprite motion
+	#define VDP_INT_CTRL_DISABLE_SPRITES	0x40
+	// disable sound list processing
+	#define VDP_INT_CTRL_DISABLE_SOUND		0x20
+	// disable QUIT key testing
+	#define VDP_INT_CTRL_DISABLE_QUIT		0x10
+
+// wait for a vblank (interrupts disabled - will work unreliably if enabled)
+// call vdpwaitvint() instead if you want to keep running the console interrupt
+#define VDP_WAIT_VBLANK  		while (!(VDPST & VDP_ST_INT)) { }
+
+// we enable interrupts via the CPU instruction, not the VDP itself, because it's faster
+// Note that on the TI interrupts DISABLED is the default state
+#define VDP_INT_ENABLE			__asm__("LIMI 2")
+#define VDP_INT_DISABLE			__asm__("LIMI 0")
+
+//*********************
+// Register settings
+//*********************
+
+// Bitmasks for the status register
+#define VDP_ST_INT				0x80		// interrupt ready
+#define VDP_ST_5SP				0x40		// 5 sprites-on-a-line
+#define VDP_ST_COINC			0x20		// sprite coincidence
+#define VDP_ST_MASK				0x1f		// mask for the 5 bits that indicate the fifth sprite on a line
+
+// these are the actual write-only register indexes
+#define VDP_REG_MODE0			0x00		// mode register 0
+#define VDP_REG_MODE1			0x01		// mode register 1
+#define VDP_REG_SIT				0x02		// screen image table address (this value times 0x0400)
+#define VDP_REG_CT				0x03		// color table address (this value times 0x0040)
+#define VDP_REG_PDT				0x04		// pattern descriptor table address (this value times 0x0800)
+#define VDP_REG_SAL				0x05		// sprite attribute list address (this value times 0x0080)
+#define VDP_REG_SDT				0x06		// sprite descriptor table address (this value times 0x0800)
+#define VDP_REG_COL				0x07		// screen color (most significant nibble - foreground in text, least significant nibble - background in all modes)
+
+// settings for mode register 0
+#define VDP_MODE0_BITMAP		0x02		// set bitmap mode
+#define VDP_MODE0_EXTVID		0x01		// enable external video (not connected on TI-99/4A)
+
+// settings for mode register 1
+#define VDP_MODE1_16K			0x80		// set 16k mode (4k mode if cleared)
+#define VDP_MODE1_UNBLANK		0x40		// set to enable display, clear to blank it
+#define VDP_MODE1_INT			0x20		// enable VDP interrupts
+#define VDP_MODE1_TEXT			0x10		// set text mode
+#define VDP_MODE1_MULTI			0x08		// set multicolor mode
+#define VDP_MODE1_SPMODE16x16	0x02		// set 16x16 sprites
+#define VDP_MODE1_SPRMAG		0x01		// set magnified sprites (2x2 pixels) 
+
+// sprite modes for the mode set functions
+#define VDP_SPR_8x8				0x00
+#define	VDP_SPR_8x8MAG			(VDP_MODE1_SPRMAG)
+#define VDP_SPR_16x16			(VDP_MODE1_SPRMODE16x16)
+#define VDP_SPR_16x16MAG		(VDP_MODE1_SPRMODE16x16 | VDP_MODE1_SPRMAG)
+
+// VDP colors
+#define COLOR_TRANS				0x00
+#define COLOR_BLACK				0x01
+#define COLOR_MEDGREEN			0x02
+#define COLOR_LTGREEN			0x03
+#define COLOR_DKBLUE			0x04
+#define COLOR_LTBLUE			0x05
+#define COLOR_DKRED				0x06
+#define COLOR_CYAN				0x07
+#define COLOR_MEDRED			0x08
+#define COLOR_LTRED				0x09
+#define COLOR_DKYELLOW			0x0A
+#define COLOR_LTYELLOW			0x0B
+#define COLOR_DKGREEN			0x0C
+#define COLOR_MAGENTA			0x0D
+#define COLOR_GRAY				0x0E
+#define COLOR_WHITE				0x0F
+
+//*********************
+// VDP related functions
+//*********************
+
+// set_graphics - sets up graphics I mode - 32x24, 256 chars, color, sprites
+// Inputs: pass in VDP_SPR_xxx for the sprite mode you want
+// Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
+// The screen is blanked until you do this write, to allow you time to set it up
+int set_graphics(int sprite_mode);
+
+// set_text - sets up text mode - 40x24, 256 chars, monochrome (color set by VDP_REG_COL), no sprites
+// Inputs: none
+// Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
+// The screen is blanked until you do this write, to allow you time to set it up
+int set_text();
+
+// set_multicolor - sets up multicolor mode - 64x48, 256 chars, color, sprites
+// Inputs: pass in VDP_SPR_xxx for the sprite mode you want
+// Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
+// The screen is blanked until you do this write, to allow you time to set it up
+int set_multicolor(int sprite_mode);
+
+// set_bitmap - sets up graphics II (aka bitmap) mode - 32x24, 768 chars in three zones, color, sprites
+// Inputs: pass in VDP_SPR_xxx for the sprite mode you want
+// Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
+// The screen is blanked until you do this write, to allow you time to set it up
+int set_bitmap(int sprite_mode);
+
+// writestring - writes an arbitrary string of characters at any position on the screen
+// Inputs: row and column (zero-based), NUL-terminated string to write
+// Note: will not write the correct location in text mode
+void writestring(int row, int col, char *pStr);
+
+// vdpmemset - sets a count of VDP memory bytes to a value
+// Inputs: VDP address to start, the byte to set, and number of repeats
+void vdpmemset(int pAddr, int ch, int cnt);
+
+// vdpmemcpy - copies a block of data from CPU to VDP memory
+// Inputs: VDP address to write to, CPU address to copy from, number of bytes to copy
+void vdpmemcpy(int pAddr, const unsigned char *pSrc, int cnt);
+
+// vdpmemread - copies a block of data from VDP to CPU memory
+// Inputs: VDP address to read from, CPU address to write to, number of bytes to copy
+void vdpmemread(int pAddr, unsigned char *pDest, int cnt);
+
+// vdpwriteinc - writes an incrementing sequence of values to VDP
+// Inputs: VDP address to start, first value to write, number of bytes to write
+// This is intended to be useful for setting up bitmap and multicolor mode with
+// incrementing tables
+void vdpwriteinc(int pAddr, int nStart, int cnt);
+
+// vdpchar - write a character to VDP memory (NOT to be confused with basic's CALL CHAR)
+// Inputs: VDP address to write, character to be written
+void vdpchar(int pAddr, int ch);
+
+// vdpwritescreeninc - like vdpwriteinc, but writes to the screen image table
+// Inputs: offset from the screen image table to write, first value to write, number of bytes to write
+void vdpwritescreeninc(int pAddr, int nStart, int cnt);
+
+// vdpscreenchar - like vdpchar, but writes to the screen image table
+// Inputs: offset from the screen image table to write to, value to be written
+void vdpscreenchar(int pAddr, int ch);
+
+// vdpwaitvint - enables console interrupts, then waits for one to happen
+// Interrupts are disabled upon exit.
+void vdpwaitvint();
+
+// putstring - writes a string with limited formatting to the bottom of the screen
+// Inputs: NUL-terminated string to write
+// This function only emits printable ASCII characters (32-127). It works in both
+// 32x24 and 40x24 modes. It recognizes \r to go to the beginning of the line, and
+// \n to go to a new line and scroll the screen. Tracking of the cursor is thus 
+// automatic in this function, and it pulls in scrn_scroll.
+void putstring(char *s);
+
+// scrn_scroll - scrolls the screen upwards one line - works in 32x24 and 40x24 modes
+void scrn_scroll();
+
+// hchar - repeat a character horizontally on the screen, similar to CALL HCHAR
+// Inputs: row and column (0-based, not 1-based) to start, character to repeat, number of repetitions (not optional)
+// Note: for a single character, vdpscreenchar() is more efficient
+void hchar(int r, int c, int ch, int cnt);
+
+// vchar - repeat a character vertically on the screen, similar to CALL VCHAR
+// Inputs: row and column (0-based, not 1-based), character to repeat, number of repetitions (not optional)
+// Note: for a single character, vdpscreenchar() is more efficient
+void vchar(int r, int c, int ch, int cnt);
+
+// gchar - return a character from the screen, similar to CALL GCHAR
+// Inputs: row and column (0-based, not 1-based) to read from
+// Return: character at the specified position on the screen
+unsigned char gchar(int r, int c);
+
+// sprite - set up an entry in the sprite attribute list, similar to CALL SPRITE
+// Inputs: sprite number (0-31), character (0-255), color (COLOR_xx), row and column (0-based)
+// Note that motion set up is not handled by this function
+// Note that row 255 is the first line on the screen
+// And finally, note that a row of 208 will disable display of all subsequent sprite numbers
+void sprite(int n, int ch, int col, int r, int c);
+
+// delsprite - remove a sprite by placing it offscreen
+// Inputs: sprite number (0-31) to hide
+void delsprite(int n);
+
+// charset - load the default character set from GROM. This will load both upper and lowercase (small capital) characters.
+// Not compatible with the 99/4, if it matters.
+void charset();
+
+// charsetlc - load the default character set including true lowercase. This code includes a lower-case character
+// set and shifts the GROM character set to align better with it. Because it pulls in data, it does take a little more
+// memory (208 bytes). Not compatible with the 99/4, if it matters.
+void charsetlc();
+
+// gplvdp - copy data from a GPL function to VDP memory. 
+// Inputs: address of a GPL vector, VDP address to copy to, number of characters to copy
+// This is a very specialized function used by the charset() functions. It assumes a GPL 'B'
+// instruction at the vector, and that the first instruction thereafter is a 'DEST'. It uses
+// this to find the actual character set data regardless of the GROM version. This function
+// is not compatible with the 99/4 (because it copies 7 bytes per character, and the 99/4
+// only provided 6 bytes).
+void gplvdp(int vect, int adr, int cnt);
+
+// global pointers for all to enjoy - make sure the screen setup code updates them!
+// assumptions here are for E/A environment, they may not be accurate and your
+// program should NOT trust them until after one of the mode set functions is called.
+extern unsigned int gImage;					// SIT, Register 2 * 0x400
+extern unsigned int gColor;					// CR,  Register 3 * 0x40
+extern unsigned int gPattern;				// PDT, Register 4 * 0x800
+extern unsigned int gSprite;				// SAL, Register 5 * 0x80
+extern unsigned int gSpritePat;				// SDT, Register 6 * 0x800
+
+// text position information used by putstring and scrn_scroll
+extern int nTextRow,nTextEnd;
+extern int nTextPos;
+
+extern volatile unsigned char gSaveIntCnt;	// console interrupt count byte
