@@ -9,7 +9,4 @@ void hexprint(unsigned char x) {
 	if (buf[1]>'9') buf[1]+=7;
 	buf[2]='\0';
 	putstring(buf);
-
-	// TODO: Compiler Bug workaround - restore correct return address for C compiler - tested only on O2!
-	__asm__("mov *r10,r11");
 }
