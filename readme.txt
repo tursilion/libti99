@@ -9,3 +9,4 @@ player.h-	include file for using my compressed VGM audio player
 sound.h	-	helper definitions for the sound chip and console sound interrupt player
 vdp.h	-	helper definitions and functions for the VDP and console interrupt
 
+The GCC patches and build instructions (not related to this lib) are here: http://atariage.com/forums/topic/164295-gcc-for-the-ti/page__st__125
