@@ -219,6 +219,13 @@ void vdpwaitvint();
 // automatic in this function, and it pulls in scrn_scroll.
 void putstring(char *s);
 
+// hexprint - generates a 2 character hex string from an int and calls putstring to print it
+void hexprint(unsigned char x);
+
+// fast_hexprint - generates a 2 character hex string from an int and calls putstring to print it
+// uses a 512 byte lookup table - so it is fast but costs more to use
+void fast_hexprint(unsigned char x);
+
 // scrn_scroll - scrolls the screen upwards one line - works in 32x24 and 40x24 modes
 void scrn_scroll();
 
@@ -280,3 +287,6 @@ extern int nTextRow,nTextEnd;
 extern int nTextPos;
 
 extern volatile unsigned char gSaveIntCnt;	// console interrupt count byte
+
+// 512 byte lookup table for converting a byte to two ASCII hex characters
+extern const unsigned int byte2hex[256];

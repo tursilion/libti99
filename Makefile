@@ -34,6 +34,8 @@ OBJECT_LIST=\
   vdp_gplvdp.o		\
   vdp_hchar.o		\
   vdp_hexprint.o	\
+  vdp_fasthexprint.o\
+  vdp_byte2hex.o	\
   vdp_ints.o		\
   vdp_memcpy.o		\
   vdp_memread.o		\
