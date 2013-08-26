@@ -21,11 +21,15 @@ C_FLAGS=\
 
 # List of compiled objects used in executable
 OBJECT_LIST=\
+  dsr_files.o		\
+  dsr_dsrlnk.o		\
+  dsr_dsrlnkraw.o	\
   grom_readdata.o	\
   grom_writedata.o	\
   halt.o			\
   kscan.o			\
   player.o			\
+  str_strlen.o		\
   vdp_char.o		\
   vdp_charset.o		\
   vdp_charsetlc.o	\
@@ -41,6 +45,7 @@ OBJECT_LIST=\
   vdp_memread.o		\
   vdp_memset.o		\
   vdp_putstring.o	\
+  vdp_readchar.o	\
   vdp_screenchar.o	\
   vdp_scrnscroll.o	\
   vdp_setbitmap.o	\
@@ -55,7 +60,7 @@ OBJECT_LIST=\
   vdp_writeinc.o	\
   vdp_writescreeninc.o	\
   vdp_writestring.o	\
-  tiplayer.o
+  tiplayer.o		
 
 # Recipe to compile the library
 all: library test

@@ -80,6 +80,9 @@ inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+
 
 // wait for a vblank (interrupts disabled - will work unreliably if enabled)
 // call vdpwaitvint() instead if you want to keep running the console interrupt
+// DO NOT USE - this will miss interrupts. Will replace this with a 9901-based 
+// poll later which will work reliably as long as the VDP interrupts are not
+// disabled (but they may remain disabled on the CPU)
 #define VDP_WAIT_VBLANK  		while (!(VDPST & VDP_ST_INT)) { }
 
 // we enable interrupts via the CPU instruction, not the VDP itself, because it's faster
@@ -198,6 +201,11 @@ void vdpwriteinc(int pAddr, int nStart, int cnt);
 // vdpchar - write a character to VDP memory (NOT to be confused with basic's CALL CHAR)
 // Inputs: VDP address to write, character to be written
 void vdpchar(int pAddr, int ch);
+
+// vdpreadchar - read a character from VDP memory
+// Inputs: VDP address to read
+// Outputs: byte
+unsigned char vdpreadchar(int pAddr);
 
 // vdpwritescreeninc - like vdpwriteinc, but writes to the screen image table
 // Inputs: offset from the screen image table to write, first value to write, number of bytes to write

@@ -19,6 +19,16 @@
 #define SOUND_VDP	*((volatile unsigned char*)0x83fd)
 #define SOUND_VDP_MASK	0x01
 
+// Command nibbles
+#define TONE1_FREQ	0x80
+#define TONE1_VOL	0x90
+#define TONE2_FREQ	0xA0
+#define TONE2_VOL	0xB0
+#define TONE3_FREQ	0xC0
+#define TONE3_VOL	0xD0
+#define NOISE_MODE	0xE0
+#define NOISE_VOL	0xF0
+
 //*********************
 // console sound interrupt helpers (remember you still have to enable interrupts in your main loop!)
 //*********************
