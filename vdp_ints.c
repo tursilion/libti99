@@ -3,5 +3,5 @@
 
 #include "vdp.h"
 
-volatile unsigned char gSaveIntCnt;	// console interrupt count byte
+unsigned char gSaveIntCnt;	// console interrupt count byte
 

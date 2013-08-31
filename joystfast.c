@@ -8,7 +8,7 @@ void joystfast(int unit) {
 	unsigned int result;
 
 	// read the joystick lines (column 6 or 7, (5 added to unit))
-	__asm__("li r12,>0024\n\tai %1,5\n\tldcr %1,3\n\tsrc r12,7\n\tli r12,>0006\n\tclr %0\n\tstcr %0,8" : "=r"(result) : "r"(unit) : "r12");
+	__asm__("li r12,>0024\n\tai %1,5\n\tswpb %1\n\tldcr %1,3\n\tsrc r12,7\n\tli r12,>0006\n\tclr %0\n\tstcr %0,8" : "=r"(result) : "r"(unit) : "r12");
 
 	KSCAN_JOYY = 0;
 	KSCAN_JOYX = 0;
