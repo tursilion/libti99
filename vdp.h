@@ -120,7 +120,7 @@ inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+
 #define VDP_MODE1_INT			0x20		// enable VDP interrupts
 #define VDP_MODE1_TEXT			0x10		// set text mode
 #define VDP_MODE1_MULTI			0x08		// set multicolor mode
-#define VDP_MODE1_SPMODE16x16	0x02		// set 16x16 sprites
+#define VDP_MODE1_SPRMODE16x16	0x02		// set 16x16 sprites
 #define VDP_MODE1_SPRMAG		0x01		// set magnified sprites (2x2 pixels) 
 
 // sprite modes for the mode set functions
@@ -294,7 +294,7 @@ extern unsigned int gSpritePat;				// SDT, Register 6 * 0x800
 extern int nTextRow,nTextEnd;
 extern int nTextPos;
 
-extern volatile unsigned char gSaveIntCnt;	// console interrupt count byte
+extern unsigned char gSaveIntCnt;	// console interrupt count byte
 
 // 512 byte lookup table for converting a byte to two ASCII hex characters
 extern const unsigned int byte2hex[256];

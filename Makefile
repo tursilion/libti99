@@ -28,6 +28,8 @@ OBJECT_LIST=\
   grom_writedata.o	\
   halt.o			\
   kscan.o			\
+  kscanfast.o		\
+  joystfast.o		\
   player.o			\
   str_strlen.o		\
   vdp_char.o		\
