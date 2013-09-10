@@ -6,6 +6,8 @@
 
 // uses: scratchpad >8340-8348, >8354, >8355, >8356, >83d0, >83d2, GPLWS
 
+#define DSR_NAME_LEN	*((volatile unsigned char*)0x8355)
+
 void __attribute__((noinline)) dsrlnkraw(unsigned int vdp) {
 	// modified version of the e/a DSRLNK, for data >8 (DSR) only
 	// this one does not modify data in low memory expansion so "boot tracking" there may not work.
@@ -29,6 +31,8 @@ void __attribute__((noinline)) dsrlnkraw(unsigned int vdp) {
 		vdpchar(status, DSR_ERR_FILEERROR);
 		return;
 	}
+	// save off the device name length (asm below uses it!)
+	DSR_LEN_COUNT=cnt;
 
 	unsigned int CRU = 0;
 	DSR_NAME_LEN = cnt;
@@ -43,9 +47,8 @@ void __attribute__((noinline)) dsrlnkraw(unsigned int vdp) {
 "begin  lwpi 0x83e0                ;  	load gplws to call the dsr with\n"
 "       clr  r1					;	r1=0\n"
 "       li   r12,0x0f00			;	cru base to >0f00 (first card -1)\n"
-"a2310  mov  r12,r12				;	check base for 0\n"
-"       jeq  a2316			;		if not 0, skip card off. looks like a bug, it's never 0??\n"
-"       sbz  0              ;        	card off\n"
+"       jmp  a2316              ; skip card off.\n"
+"a2310  sbz  0              ;        	card off\n"
 "a2316  ai   r12,0x0100		;		next card (>1000 for first)\n"
 "       clr  @0x83d0	;				clear cru tracking at >83d0\n"
 "       ci   r12,0x2000	;			check if all cards are done\n"

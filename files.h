@@ -5,7 +5,7 @@
 // *** WARNING *** This code does NOT work on hardware yet.
 
 #define DSR_FILES_COUNT	*((volatile unsigned char*)0x834C)
-#define DSR_NAME_LEN	*((volatile unsigned char*)0x8354)
+#define DSR_LEN_COUNT	*((volatile unsigned int*)0x8354)
 #define DSR_PAB_POINTER *((volatile unsigned int*)0x8356)
 
 #define DSR_OPEN	0x00
