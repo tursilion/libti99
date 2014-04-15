@@ -1,20 +1,23 @@
-# decompress a compressed vgm file
+# decompress a compressed vgm file and interleave with sfx
 # there are 12 streams that we decompress overall
 # for each channel there is a time stream,  a volume stream,  and a tone stream
-# use these functions if you only want to play music, it will take less memory
-# use the functions in sfxplayer.asm if you want music+sound effects
 
-# uses 124 bytes of RAM plus 32 bytes for a temporary workspace (156 total)
-# 596 bytes of code
+# uses 254 bytes of RAM plus 32 bytes for a temporary workspace (286 total)
+# 875 bytes of code
+
+# following notes are for /each track/ - so are doubled in worst case.
 # cycle counting an average song gives a range of about 1000-10000 cycles per frame, with an
 # average of 2000 cycles. That's 333uS - 3333uS, average of 666uS. One scanline (out of 262)
 # is about 63.666uS, so the decompression takes from 5-52 scanlines, average of 10 scanlines.
 # That means about 2%-20% of the CPU, with an average of 4%, at 60Hz playback.
 
 # externally visible data (on return):
+# this data applies to music only - SFX data is not retained for external viewing.
 # R7 (songwp+14) contains >FFFF if the song is still playing, and >0000 if it's done
 # R9-R10 (songwp+18-20) contains one byte for each voice's current volume
 # R12-R15 (songwp+24-30) contain the current frequency word (last channel is just a noise nibble)
+# Note: for this player, you must not modify R9-R10, or R12-R15, as they are used to restore
+# music when a sound effect ends!
 
 # R0 = return data, scratch       R8 = scratch
 # R1 = scratch                    R9 = user volume bytes 0-1
@@ -23,16 +26,19 @@
 # R4 = voice counter (0-3)        R12= voice 0 frequency
 # R5 = stream base pointer        R13= voice 1 frequency
 # R6 = time counter pointer       R14= voice 2 frequency
-# R7 = still playing flag         R15= noise type (byte)
+# R7 = data ptr/play flags		  R15= noise type (byte)
 
 # this one ported to work with the gcc assembler,  and export data
-	def stinit
-	def ststop
-	def stplay
+	def stinitsfx30
+	def ststopsfx30
+	def stplaysfx30
+	def sfxinitsfx30
+	def sfxstopsfx30
+	def allstopsfx30
 
 # these are just intended to be read from the map file so they can be used for timing
-	def timingin
-	def timingout
+	def timinginsfx30
+	def timingoutsfx30
 
 # must point to a workspace that the player can corrupt at will, 
 # however,  the memory is not needed between calls
@@ -56,14 +62,34 @@ tmocnt	bss 8
 tmovr	bss 8
 # pointer to the song data (needed for offset fixups)
 songad	bss 2
-# return address
+
+# pointers,  in order streampos,  streamref,  streamcnt, streambase, repeated 12 times (for decompression)
+sfxstrm		bss 96
+# time countdown for each of 4 channels (only need bytes, but using words for simplicity)
+sfxtmcnt	bss 8
+# count of override for timestreams (only need bytes)
+sfxtmocnt	bss 8
+# type of override for timestreams (only need bytes)
+sfxtmovr	bss 8
+# pointer to the song data (needed for offset fixups)
+sfxsongad	bss 2
+
+# return addresses
 retad	bss 2
+retad2	bss 2
+# Bitmask storage for R7 in (LSB) and out (MSB)
+# copied in and out via R7
+playmask bss 2
+# frame flag (a bit wasteful!)
+frflag bss 2
+# sfx flag - set when sfx is playing so we know when to reset the music
+sfxflag bss 2
 
 	pseg 
 # get a compressed byte from a stream - stream data base in r3
 # note: assumes stream data is based at STRM
 # byte is return in r0 msb
-# uses r1, r2, may seto r7
+# uses r1, r2
 	even
 getbyte
 	mov @2(r3), r1				# test streamref
@@ -108,7 +134,7 @@ getb3
 	mov *r3, r1					# get pointer to stream
 	clr r2						# prepare r2
 	movb *r1+, r2				# get new count byte
-	jeq nostream				# was zero
+	jeq nostream				# was zero - no stream
 	jgt getb4					# if high bit is clear (no 0x80)
 
 	coc @dat40,r2				# check for 40 (indicates 2 byte reference)
@@ -167,12 +193,50 @@ getb5
 	seto @2(r3)					# set the reference to 0xffff
 	b *r11						# and return
 
+# start a new sound effect,  with the pointer to the module in r1, and index of tune in r2
+sfxinitsfx30
+	lwpi songwp
+
+	mov @sfxflag,r0
+	jeq sfxinit2
+	bl @restorechans	# we were already playing, so we must restore the channels
+sfxinit2
+	seto @sfxflag		# we believe we are playing!
+
+	mov @>8302,r0		# save the address (r1) in our workspace's R0
+	mov @>8304,r3		# save the index (r2) in our workspace's R3
+
+	li r1, 12
+	li r2, sfxstrm
+	mov r0, @sfxsongad	# save it for later
+	mov *r0, r0			# point to the table of pointers
+	li r4,24			# 24 bytes per table
+	mpy r3,r4			# get the offset to the requested stream table (into r4,r5)
+	a r5,r0				# add it in
+	a @sfxsongad, r0	# make a memory pointer
+	li r7,sfxstrm-strm	# base offset
+	jmp sti1
 
 # start a new tune,  with the pointer to the module in r1, and index of tune in r2 (usually 0)
-stinit
+stinitsfx30
 	mov r1,@songwp		# save the address in our workspace's R0
 	mov r2,@songwp+6	# save the index in our workspace's R3
 	lwpi songwp
+
+	clr @frflag			# clear frame flag - important! (note: not done for sfx!)
+
+	# put sanish values in the user feedback registers (not for sfx!)
+	seto r7				# playing flag
+	mov @volmk,r9		# volume bytes - default to mute! (>90B0)
+	mov @volmk+2,r10	# so we never need to check them  (>D0F0)
+	li r2,>0F0F			# attenuation of >0F on each
+	soc r2,r9
+	soc r2,r10
+	clr r12				# tone words
+	clr r13
+	clr r14
+	clr r15
+
 	li r1, 12
 	li r2, strm
 	mov r0, @songad		# save it for later
@@ -181,9 +245,10 @@ stinit
 	mpy r3,r4			# get the offset to the requested stream table (into r4,r5)
 	a r5,r0				# add it in
 	a @songad, r0		# make a memory pointer
+	clr r7				# offset
 sti1
 	mov *r0+, *r2		# get stream offset 
-	a @songad, *r2		# make it a pointer - when all four voices point to zero,  the tune is over
+	a @songad(r7), *r2	# make it a pointer - when all four voices point to zero,  the tune is over
 	mov *r2,@6(r2)		# copy into stream base pointer
 	inct r2
 	clr *r2+			# clear reference
@@ -202,25 +267,17 @@ sti1
 	clr *r2+
 	clr *r2+		
 
-	# put sanish values in the user feedback registers
-	seto r7				# playing flag
-	seto r9				# volume bytes
-	seto r10
-	clr r12				# tone words
-	clr r13
-	clr r14
-	clr r15
-
 	lwpi >8300			# c workspace
 	b *r11				# back to caller
 
 # call to stop the tune or initialize to silence
 # uses r0, r1
-ststop
+ststopsfx30
 	lwpi songwp
 
-	li r1, 52			# 12*4 + 4
 	li r0, strm
+sts2
+	li r1, 52			# 12*4 + 4
 sts1
 	clr *r0+			# get stream offset 
 	dec r1
@@ -230,19 +287,70 @@ sts1
 	lwpi >8300			# c workspace
 	b *r11				# back to caller
 
+# call to stop the sfx or initialize to silence
+# uses r0, r1
+sfxstopsfx30
+	lwpi songwp
+	mov @sfxflag,r0
+	jeq norest
+	bl @restorechans
+	clr @sfxflag
+norest
+	li r0, sfxstrm
+	jmp sts2
+
+# call to stop both SFX and music
+allstopsfx30
+	mov r11,@retad
+	bl @sfxstopsfx30
+	bl @ststopsfx30
+	mov @retad,r11
+	b *r11
 
 dat80	data >8000
 dat40	data >4000
 dat01	data >0001
+bits	data >0102, >0408
+bits16	data >0001, >0002, >0004, >0008
 tonemk	data >80a0, >c0e0
 volmk	data >90b0, >d0f0
 specdt	data >4142, >4300
 
+# tiny helper for sfx restore
+loadtone
+	swpb r0
+	movb r0,@>8400
+	swpb r0
+	movb r0,@>8400
+	b *r11
+
+restorechans
+	mov r11,r2
+	li r1,loadtone		# sfx ended - restore all the channels
+	mov r12,r0
+	bl *r1
+	mov r13,r0
+	bl *r1
+	mov r14,r0
+	bl *r1
+	mov r15,r0
+	swpb r0
+	movb r0,@>8400
+	movb r9,@>8400
+	swpb r9
+	movb r9,@>8400
+	swpb r9
+	movb r10,@>8400
+	swpb r10
+	movb r10,@>8400
+	swpb r10
+	b *r2
+
 # call every vblank to update the music
 # intended to be called from vblank hook - returns with
 # the workspace changed to songwp
-stplay
-timingin
+stplaysfx30
+timinginsfx30
 ## temp hack - measuring time ##
 #	li r0, >0487
 #	movb r0, @>8c02
@@ -250,25 +358,67 @@ timingin
 #	movb r0, @>8c02
 #################################
 
-	mov r11, @retad		# save return address
+	mov r11, @retad2	# master return address
 	lwpi songwp			# get 'our' workspace
 
-	seto @scrnto		# reset the screen timeout (and make odd)
+	inv @frflag			# invert - so it must have started as 0 or 0xffff, or we'll always run!
+	jne runpart2
 
-	clr r7				# flag for caller - if 0,  the song is over (songwp+14)
-	
+# process sound effects
+
+	seto @scrnto		# reset the screen timeout (and make odd)
+	clr @playmask		# clear the channel masking data (MSB = in, LSB = out)
+
+	li r7,sfxstrm-strm	# offset for sound effects
+	bl @playone			# do it
+
+	mov @playmask,r0
+	swpb r0
+	mov r0,@playmask	# prepare playmask for music
+	jne sfxstill		# jump if SFX still playing
+	mov @sfxflag,r0
+	jeq sfxstill		# don't reset if it wasn't playing
+
+	bl @restorechans	# sfx ended - restore all the channels
+	clr @sfxflag
+
+sfxstill
+	seto r7				# always claim running after sfx to avoid early out
+
+	mov @retad2,r11		# get return adress back
+	b *r11				# back to caller
+
+runpart2
+# process music
+	clr r7				# offset for music
+	bl @playone
+
+	clr r7				# prepare flag mask
+	movb @playmask,r7	# copy output flags to MSB only
+
+	mov @retad2,r11		# get return adress back
+	b *r11				# back to caller
+
+bstpl2
+	b @stpl2
+
+playone
+	mov r11,@retad		# save return address
+
 	clr r4				# counter for 4 voices
 	li r5, strm			# pointing to first stream object
+	a r7,r5				# add offset
 	li r6, tmcnt		# pointing to first time counter
+	a r7,r6				# add offset
 
 stpl1
 	mov @64(r5), r0		# test time stream pointer (stream 8,  8 bytes per stream,  8*8)
-	jeq stpl2			# skip if empty
+	jeq bstpl2			# skip if empty
 
-	seto r7				# found valid data,  flag for caller
+	socb @bits(r4),@playmask	# set the active bit
 
 	dec *r6				# decrement timer
-	joc stpl2			# was not zero,  next loop (this will catch 0 -> -1, as desired)
+	joc bstpl2			# was not zero,  next loop (this will catch 0 -> -1, as desired)
 
 stplx1
 	mov r5, r3
@@ -286,6 +436,7 @@ stplx2
 	jne stpl3			# was not zero
 
 	clr *r3				# zero the timestream pointer
+	szcb @bits(r4),@playmask	# clear the active bit
 	jmp stpl2			# next loop
 
 stpl3
@@ -337,24 +488,37 @@ stlp3b
 
 #noise channel
 	socb @tonemk+3, r0	# or in the sound command nibble (we know we are on channel 3, save some code+time)
+	mov r4,r1			# need this to check
+	sla r1,1			# make index
+	mov @playmask,r2	# get mask
+	coc @bits16(r1),r2	# check if we are allowed to play
+	jeq nonoise
 	movb r0, @>8400		# move to the sound chip
+nonoise
 	swpb r0				# swap data so we can save it off
 	jmp stpl4a
 
 sttone
 	swpb r0				# get into correct byte
 	sla r0,1			# make index
-	mov @songad,r1		# we need this address twice
+	mov @songad(r7),r1	# we need this address twice
 	a r1,r0				# make pointer
 	inct r1				# pointer to the frequency table
 	a *r1,r0			# and add the offset to the pointer table
 	mov *r0, r0			# get the frequency data
 	socb @tonemk(r4), r0	# or in the sound command nibble
+	mov r4,r1			# need this to check
+	sla r1,1			# make index
+	mov @playmask,r2	# get mask
+	coc @bits16(r1),r2	#check if we are allowed to play
+	jeq notone
 	movb r0, @>8400		# move to the sound chip
 	swpb r0				# swap data so we can save it off
 	movb r0, @>8400		# move the second byte
 
 stpl4a
+	mov r7,r7			# check if on music track
+	jne stpl4			# don't save it
 	sla r4,1			# make an index
 	mov r0,@songwp+24(r4)	# save it (r12->r15)
 	srl r4,1			# change it back
@@ -367,7 +531,15 @@ stpl4
 	ai r3, 32			# 4 streams up,  4*8
 	bl @getbyte			# get it
 	socb @volmk(r4), r0	# or in the sound command nibble
+	mov r4,r1			# need this to check
+	sla r1,1			# make index
+	mov @playmask,r2	# get mask
+	coc @bits16(r1),r2	#check if we are allowed to play
+	jeq novol
 	movb r0, @>8400		# move to the sound chip
+novol
+	mov r7,r7			# check if on music track
+	jne stpl5			# don't save it
 	movb r0, @songwp+18(r4)	# save it off (r9->r10)
 
 stpl5
@@ -381,7 +553,10 @@ stpl2
 	inct r6				# next timer
 	inc r4				# next loop
 	ci r4, 4			# are we done?
-	jne stpl1			# not yet
+	jeq gohome			# yes, exit
+	b @stpl1			# not yet
+
+gohome
 
 ## temp hack - measuring time ##
 #	li r0, >0287
@@ -392,7 +567,13 @@ stpl2
 
 	mov @retad, r11		# get return address back
 
-timingout
+timingout30
 	b *r11				# now done 1 tick
+
+# moved down here so that playing tones doesn't get more expensive
+notone
+	swpb r0				# so the user feedback looks the same
+	jmp stpl4a			# back to mainline
+
 
 	end

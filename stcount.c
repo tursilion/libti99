@@ -1,13 +1,4 @@
-//*********************
-// Use these functions if you want ONLY music. If you want sound effects
-// AND music together, use sfxplayer, which will need a little more
-// memory and CPU but is otherwise the same.
-//*********************
-
-// pointers into the song data - all include the command nibble. Assumes player uses workspace at >8322
-volatile unsigned int * const pVoice = (volatile unsigned int*)0x833A;
-volatile unsigned char * const pVol = (volatile unsigned char*)0x8334;
-volatile unsigned int * const pDone = (volatile unsigned int*)0x8330;
+// stcount function for compressed music player
 
 // stcount - returns how many songs are in a pack
 // inputs - pSong - pointer to song data

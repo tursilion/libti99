@@ -4,9 +4,8 @@
 // block of RAM for decompression. 
 
 //*********************
-// Use these functions if you want ONLY music. If you want sound effects
-// AND music together, use sfxplayer, which will need a little more
-// memory and CPU but is otherwise the same.
+// Use these functions if you want music AND sound effects. If you only
+// want music, use player.h which will use less memory and CPU time.
 //*********************
 
 //*********************
@@ -26,18 +25,32 @@ extern volatile unsigned int * const pDone;		// single word, 0xffff if playing, 
 // Player functions
 //*********************
 
-// stinit - initialize a stream playback
+// stinitsfx - initialize a song stream playback
 // Inputs: pSong: points to the compressed song data (in CPU memory)
 //         index: index of the song to play (0 if not a multi-bank song)
-void stinit(const void *pSong, const int index);
+void stinitsfx(const void *pSong, const int index);
 
-// ststop - stop playback
-void ststop();
+// ststopsfx - stop playback of the song stream
+void ststopsfx();
 
-// stplay - play one tick
+// sfxinitsfx - initialize a sound effect playback
+// Inputs: pSong: points to the compressed song data (in CPU memory)
+//         index: index of the sfx to play (0 if not a multi-bank)
+//		   priority: priority of this sfx. If less than currently playing,
+//					 this one will be ignored, else the other is replaced
+//					 sfx always has priority over music
+void sfxinitsfx(const void *pSong, const int index, const int priority);
+
+// sfxstopsfx - stop playback of current sfx
+void sfxstopsfx();
+
+// allstopsfx - stops music and sfx both
+void allstopsfx();
+
+// stplaysfx - play one tick (song and sfx)
 // You must call this function once every 60hz interrupt. It is acceptable
 // to load it directly into the VDP interrupt hook.
-void stplay();
+void stplaysfx();
 
 // stcount - returns how many songs are in a pack
 // inputs - pSong - pointer to song data

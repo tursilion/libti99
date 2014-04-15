@@ -1,11 +1,11 @@
-# decompress a compressed vgm file
+# decompress a compressed vgm file at 30hz (every other interrupt skipped)
 # there are 12 streams that we decompress overall
 # for each channel there is a time stream,  a volume stream,  and a tone stream
 # use these functions if you only want to play music, it will take less memory
 # use the functions in sfxplayer.asm if you want music+sound effects
 
-# uses 124 bytes of RAM plus 32 bytes for a temporary workspace (156 total)
-# 596 bytes of code
+# uses 126 bytes of RAM plus 32 bytes for a temporary workspace (158 total)
+# 604 bytes of code
 # cycle counting an average song gives a range of about 1000-10000 cycles per frame, with an
 # average of 2000 cycles. That's 333uS - 3333uS, average of 666uS. One scanline (out of 262)
 # is about 63.666uS, so the decompression takes from 5-52 scanlines, average of 10 scanlines.
@@ -23,16 +23,16 @@
 # R4 = voice counter (0-3)        R12= voice 0 frequency
 # R5 = stream base pointer        R13= voice 1 frequency
 # R6 = time counter pointer       R14= voice 2 frequency
-# R7 = still playing flag         R15= noise type (byte)
+# R7 = still playing flag         R15= noise type
 
 # this one ported to work with the gcc assembler,  and export data
-	def stinit
-	def ststop
-	def stplay
+	def stinit30
+	def ststop30
+	def stplay30
 
 # these are just intended to be read from the map file so they can be used for timing
-	def timingin
-	def timingout
+	def timingin30
+	def timingout30
 
 # must point to a workspace that the player can corrupt at will, 
 # however,  the memory is not needed between calls
@@ -58,6 +58,9 @@ tmovr	bss 8
 songad	bss 2
 # return address
 retad	bss 2
+# frame flag (a bit wasteful but time efficient - you can also
+# use the non-30Hz version and just call it at 30hz ;) )
+frflag	bss 2
 
 	pseg 
 # get a compressed byte from a stream - stream data base in r3
@@ -108,7 +111,7 @@ getb3
 	mov *r3, r1					# get pointer to stream
 	clr r2						# prepare r2
 	movb *r1+, r2				# get new count byte
-	jeq nostream				# was zero
+	jeq nostream				# was a zero
 	jgt getb4					# if high bit is clear (no 0x80)
 
 	coc @dat40,r2				# check for 40 (indicates 2 byte reference)
@@ -169,7 +172,7 @@ getb5
 
 
 # start a new tune,  with the pointer to the module in r1, and index of tune in r2 (usually 0)
-stinit
+stinit30
 	mov r1,@songwp		# save the address in our workspace's R0
 	mov r2,@songwp+6	# save the index in our workspace's R3
 	lwpi songwp
@@ -211,12 +214,14 @@ sti1
 	clr r14
 	clr r15
 
+	clr @frflag			# clear frame flag - important!
+
 	lwpi >8300			# c workspace
 	b *r11				# back to caller
 
 # call to stop the tune or initialize to silence
 # uses r0, r1
-ststop
+ststop30
 	lwpi songwp
 
 	li r1, 52			# 12*4 + 4
@@ -241,15 +246,19 @@ specdt	data >4142, >4300
 # call every vblank to update the music
 # intended to be called from vblank hook - returns with
 # the workspace changed to songwp
-stplay
-timingin
+stplay30
+timingin30
+	inv @frflag			# invert - so it must have started as 0 or 0xffff, or we'll always run!
+	jne run4real
+	b *r11
+
 ## temp hack - measuring time ##
 #	li r0, >0487
 #	movb r0, @>8c02
 #	swpb r0
 #	movb r0, @>8c02
 #################################
-
+run4real 
 	mov r11, @retad		# save return address
 	lwpi songwp			# get 'our' workspace
 
@@ -392,7 +401,7 @@ stpl2
 
 	mov @retad, r11		# get return address back
 
-timingout
+timingout30
 	b *r11				# now done 1 tick
 
 	end

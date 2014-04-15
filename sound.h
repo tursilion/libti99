@@ -44,3 +44,6 @@ inline void SET_SOUND_GROM()				{	SOUND_VDP &= ~SOUND_VDP_MASK;	}
 
 // start processing sound list on the next interrupt
 inline void START_SOUND()					{	SOUND_CNT = 1;					}
+
+// mute all channels
+inline void MUTE_SOUND()					{ SOUND=TONE1_VOL|0x0f; SOUND=TONE2_VOL|0x0f; SOUND=TONE3_VOL|0x0f; SOUND=NOISE_VOL|0x0f; }

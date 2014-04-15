@@ -31,6 +31,11 @@ OBJECT_LIST=\
   kscanfast.o		\
   joystfast.o		\
   player.o			\
+  tiplayer.o		\
+  tiplayer30hz.o	\
+  tiplayersfx.o		\
+  tiplayersfx30hz.o	\
+  stcount.o			\
   str_strlen.o		\
   vdp_char.o		\
   vdp_charset.o		\
@@ -61,8 +66,7 @@ OBJECT_LIST=\
   vdp_waitvint.o	\
   vdp_writeinc.o	\
   vdp_writescreeninc.o	\
-  vdp_writestring.o	\
-  tiplayer.o		
+  vdp_writestring.o
 
 # Recipe to compile the library
 all: library test

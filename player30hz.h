@@ -4,8 +4,8 @@
 // block of RAM for decompression. 
 
 //*********************
-// Use these functions if you want ONLY music. If you want sound effects
-// AND music together, use sfxplayer, which will need a little more
+// Use these functions if you want ONLY music at 30hz. If you want sound effects
+// AND music together, use sfxplayer30hz, which will need a little more
 // memory and CPU but is otherwise the same.
 //*********************
 
@@ -29,15 +29,15 @@ extern volatile unsigned int * const pDone;		// single word, 0xffff if playing, 
 // stinit - initialize a stream playback
 // Inputs: pSong: points to the compressed song data (in CPU memory)
 //         index: index of the song to play (0 if not a multi-bank song)
-void stinit(const void *pSong, const int index);
+void stinit30(const void *pSong, const int index);
 
 // ststop - stop playback
-void ststop();
+void ststop30();
 
 // stplay - play one tick
 // You must call this function once every 60hz interrupt. It is acceptable
 // to load it directly into the VDP interrupt hook.
-void stplay();
+void stplay30();
 
 // stcount - returns how many songs are in a pack
 // inputs - pSong - pointer to song data
