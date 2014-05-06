@@ -80,10 +80,9 @@ inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+
 
 // wait for a vblank (interrupts disabled - will work unreliably if enabled)
 // call vdpwaitvint() instead if you want to keep running the console interrupt
-// DO NOT USE - this will miss interrupts. Will replace this with a 9901-based 
-// poll later which will work reliably as long as the VDP interrupts are not
-// disabled (but they may remain disabled on the CPU)
-#define VDP_WAIT_VBLANK  		while (!(VDPST & VDP_ST_INT)) { }
+// DO NOT USE the non-CRU version - this will miss interrupts.
+//#define VDP_WAIT_VBLANK  		while (!(VDPST & VDP_ST_INT)) { }
+#define VDP_WAIT_VBLANK_CRU	  __asm__( "clr r12\n\ttb 2\n\tjeq -4\n\tmovb @>8802,r12" : : : "r12" );
 
 // we enable interrupts via the CPU instruction, not the VDP itself, because it's faster
 // Note that on the TI interrupts DISABLED is the default state

@@ -1,13 +1,13 @@
-# decompress a compressed vgm file and interleave with sfx
-# there are 12 streams that we decompress overall
-# for each channel there is a time stream,  a volume stream,  and a tone stream
+# 30hz music and sound effects player with sfx priority
+# 2014 by Tursi aka Mike Brent
+# Released to public domain, may be used freely
 
 # uses 254 bytes of RAM plus 32 bytes for a temporary workspace (286 total)
-# 875 bytes of code
+# 960 bytes of code
 
-# following notes are for /each track/ - so are doubled in worst case.
+# following notes are for /each track/ - but in this case only one track plays per frame.
 # cycle counting an average song gives a range of about 1000-10000 cycles per frame, with an
-# average of 2000 cycles. That's 333uS - 3333uS, average of 666uS. One scanline (out of 262)
+# average of 2000 cycles. That's 333uS - 3333uS, average of 665uS. One scanline (out of 262)
 # is about 63.666uS, so the decompression takes from 5-52 scanlines, average of 10 scanlines.
 # That means about 2%-20% of the CPU, with an average of 4%, at 60Hz playback.
 
@@ -82,7 +82,7 @@ retad2	bss 2
 playmask bss 2
 # frame flag (a bit wasteful!)
 frflag bss 2
-# sfx flag - set when sfx is playing so we know when to reset the music
+# sfx flag - contains current priority (0 means not playing)
 sfxflag bss 2
 
 	pseg 
@@ -195,14 +195,18 @@ getb5
 
 # start a new sound effect,  with the pointer to the module in r1, and index of tune in r2
 sfxinitsfx30
+	c r3,@sfxflag		# check whether a higher priority sfx is already playing
+	jhe playsfx
+	b *r11				# already higher
+
+playsfx
+	mov r3,@sfxflag		# save off the priority
 	lwpi songwp
 
 	mov @sfxflag,r0
 	jeq sfxinit2
 	bl @restorechans	# we were already playing, so we must restore the channels
 sfxinit2
-	seto @sfxflag		# we believe we are playing!
-
 	mov @>8302,r0		# save the address (r1) in our workspace's R0
 	mov @>8304,r3		# save the index (r2) in our workspace's R3
 
@@ -567,7 +571,7 @@ gohome
 
 	mov @retad, r11		# get return address back
 
-timingout30
+timingoutsfx30
 	b *r11				# now done 1 tick
 
 # moved down here so that playing tones doesn't get more expensive

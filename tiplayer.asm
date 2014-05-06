@@ -1,11 +1,9 @@
-# decompress a compressed vgm file
-# there are 12 streams that we decompress overall
-# for each channel there is a time stream,  a volume stream,  and a tone stream
-# use these functions if you only want to play music, it will take less memory
-# use the functions in sfxplayer.asm if you want music+sound effects
+# 60hz music-only player
+# 2014 by Tursi aka Mike Brent
+# Released to public domain, may be used freely
 
 # uses 124 bytes of RAM plus 32 bytes for a temporary workspace (156 total)
-# 596 bytes of code
+# 608 bytes of code
 # cycle counting an average song gives a range of about 1000-10000 cycles per frame, with an
 # average of 2000 cycles. That's 333uS - 3333uS, average of 666uS. One scanline (out of 262)
 # is about 63.666uS, so the decompression takes from 5-52 scanlines, average of 10 scanlines.
