@@ -65,7 +65,7 @@ inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+
 // The console counts up the screen blank timeout here. You can reset it by writing 0,
 // or prevent it from ever triggering by writing an odd number. Each interrupt, it is
 // incremented by 2, and when the value reaches 0x0000, the screen will blank by setting
-// the blanking bit in VDP register 1.
+// the blanking bit in VDP register 1. This value is reset on keypress in KSCAN.
 #define VDP_SCREEN_TIMEOUT		*((volatile unsigned int*)0x83d6)
 
 // These values are flags for the interrupt control 
@@ -232,6 +232,10 @@ void hexprint(unsigned char x);
 // fast_hexprint - generates a 2 character hex string from an int and calls putstring to print it
 // uses a 512 byte lookup table - so it is fast but costs more to use
 void fast_hexprint(unsigned char x);
+
+// faster_hexprint - works like fast_hexprint but displays directly to VDPWD, no formatting or
+// scroll and you must set the VDP address before calling
+void faster_hexprint(unsigned char x);
 
 // scrn_scroll - scrolls the screen upwards one line - works in 32x24 and 40x24 modes
 void scrn_scroll();

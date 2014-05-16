@@ -3,7 +3,7 @@
 # Released to public domain, may be used freely
 
 # uses 254 bytes of RAM plus 32 bytes for a temporary workspace (286 total)
-# 960 bytes of code
+# 1004 bytes of code
 
 # following notes are for /each track/ - but in this case only one track plays per frame.
 # cycle counting an average song gives a range of about 1000-10000 cycles per frame, with an
@@ -13,7 +13,7 @@
 
 # externally visible data (on return):
 # this data applies to music only - SFX data is not retained for external viewing.
-# R7 (songwp+14) contains >FFFF if the song is still playing, and >0000 if it's done
+# R7 (songwp+14) contains >0000 if nothing is playing. MSB is channels for music, LSB is channels for sfx.
 # R9-R10 (songwp+18-20) contains one byte for each voice's current volume
 # R12-R15 (songwp+24-30) contain the current frequency word (last channel is just a noise nibble)
 # Note: for this player, you must not modify R9-R10, or R12-R15, as they are used to restore
@@ -44,10 +44,6 @@
 # however,  the memory is not needed between calls
 # C runtime uses >8300, and >8320 is used to store 0s for my own hack
 songwp equ >8322
-
-# screen timeout register - we reset this every frame we run
-# we stop resetting it when the song ends
-scrnto equ >83D6
 
 	dseg
 
@@ -200,13 +196,13 @@ sfxinitsfx30
 	b *r11				# already higher
 
 playsfx
-	mov r3,@sfxflag		# save off the priority
 	lwpi songwp
 
 	mov @sfxflag,r0
 	jeq sfxinit2
 	bl @restorechans	# we were already playing, so we must restore the channels
 sfxinit2
+	mov @>8306,@sfxflag	# save the new priority (r3)
 	mov @>8302,r0		# save the address (r1) in our workspace's R0
 	mov @>8304,r3		# save the index (r2) in our workspace's R3
 
@@ -218,6 +214,7 @@ sfxinit2
 	mpy r3,r4			# get the offset to the requested stream table (into r4,r5)
 	a r5,r0				# add it in
 	a @sfxsongad, r0	# make a memory pointer
+	mov r7,@retad		# save music version of r7
 	li r7,sfxstrm-strm	# base offset
 	jmp sti1
 
@@ -228,18 +225,6 @@ stinitsfx30
 	lwpi songwp
 
 	clr @frflag			# clear frame flag - important! (note: not done for sfx!)
-
-	# put sanish values in the user feedback registers (not for sfx!)
-	seto r7				# playing flag
-	mov @volmk,r9		# volume bytes - default to mute! (>90B0)
-	mov @volmk+2,r10	# so we never need to check them  (>D0F0)
-	li r2,>0F0F			# attenuation of >0F on each
-	soc r2,r9
-	soc r2,r10
-	clr r12				# tone words
-	clr r13
-	clr r14
-	clr r15
 
 	li r1, 12
 	li r2, strm
@@ -271,6 +256,25 @@ sti1
 	clr *r2+
 	clr *r2+		
 
+	# put sanish values in the user feedback registers (not for sfx)
+	mov r7,r7			# music will be zeroed
+	jeq clrdata
+	mov @retad,r7		# get song version of r7 back
+	jmp sfxsane
+
+clrdata
+	seto r7				# playing flag
+	mov @volmk,r9		# volume bytes - default to mute! (>90B0)
+	mov @volmk+2,r10	# so we never need to check them  (>D0F0)
+	li r2,>0F0F			# attenuation of >0F on each
+	soc r2,r9
+	soc r2,r10
+	clr r12				# tone words
+	clr r13
+	clr r14
+	clr r15
+
+sfxsane
 	lwpi >8300			# c workspace
 	b *r11				# back to caller
 
@@ -286,6 +290,12 @@ sts1
 	clr *r0+			# get stream offset 
 	dec r1
 	jne sts1
+
+	mov @volmk,r9		# volume bytes - default to mute! (>90B0)
+	mov @volmk+2,r10	# so we never need to check them  (>D0F0)
+	li r1,>0F0F			# attenuation of >0F on each
+	soc r1,r9
+	soc r1,r10
 
 	clr r7				# clear playing flag
 	lwpi >8300			# c workspace
@@ -369,9 +379,8 @@ timinginsfx30
 	jne runpart2
 
 # process sound effects
-
-	seto @scrnto		# reset the screen timeout (and make odd)
 	clr @playmask		# clear the channel masking data (MSB = in, LSB = out)
+	movb r7,@playmask+1 # save the channel data
 
 	li r7,sfxstrm-strm	# offset for sound effects
 	bl @playone			# do it
@@ -379,6 +388,8 @@ timinginsfx30
 	mov @playmask,r0
 	swpb r0
 	mov r0,@playmask	# prepare playmask for music
+	mov r0,r7			# and restore the user feedback
+	andi r0,>00ff		# mask off just the SFX side
 	jne sfxstill		# jump if SFX still playing
 	mov @sfxflag,r0
 	jeq sfxstill		# don't reset if it wasn't playing
@@ -387,18 +398,16 @@ timinginsfx30
 	clr @sfxflag
 
 sfxstill
-	seto r7				# always claim running after sfx to avoid early out
-
 	mov @retad2,r11		# get return adress back
 	b *r11				# back to caller
 
 runpart2
 # process music
 	clr r7				# offset for music
+	movb r7,@playmask	# clear play bits
 	bl @playone
 
-	clr r7				# prepare flag mask
-	movb @playmask,r7	# copy output flags to MSB only
+	mov @playmask,r7	# copy output flags to R7 (MSB music, LSB sfx)
 
 	mov @retad2,r11		# get return adress back
 	b *r11				# back to caller
@@ -441,7 +450,7 @@ stplx2
 
 	clr *r3				# zero the timestream pointer
 	szcb @bits(r4),@playmask	# clear the active bit
-	jmp stpl2			# next loop
+	b @stpl2			# next loop
 
 stpl3
 	clr r8
@@ -492,11 +501,14 @@ stlp3b
 
 #noise channel
 	socb @tonemk+3, r0	# or in the sound command nibble (we know we are on channel 3, save some code+time)
+	mov r7,r7			# check for song, sfx always allowed
+	jne yesnoise
 	mov r4,r1			# need this to check
 	sla r1,1			# make index
 	mov @playmask,r2	# get mask
 	coc @bits16(r1),r2	# check if we are allowed to play
 	jeq nonoise
+yesnoise
 	movb r0, @>8400		# move to the sound chip
 nonoise
 	swpb r0				# swap data so we can save it off
@@ -511,11 +523,14 @@ sttone
 	a *r1,r0			# and add the offset to the pointer table
 	mov *r0, r0			# get the frequency data
 	socb @tonemk(r4), r0	# or in the sound command nibble
+	mov r7,r7			# check for song, sfx always allowed
+	jne yestone
 	mov r4,r1			# need this to check
 	sla r1,1			# make index
 	mov @playmask,r2	# get mask
 	coc @bits16(r1),r2	#check if we are allowed to play
 	jeq notone
+yestone
 	movb r0, @>8400		# move to the sound chip
 	swpb r0				# swap data so we can save it off
 	movb r0, @>8400		# move the second byte
@@ -535,11 +550,14 @@ stpl4
 	ai r3, 32			# 4 streams up,  4*8
 	bl @getbyte			# get it
 	socb @volmk(r4), r0	# or in the sound command nibble
+	mov r7,r7			# check for song, sfx always allowed
+	jne yesvol
 	mov r4,r1			# need this to check
 	sla r1,1			# make index
 	mov @playmask,r2	# get mask
 	coc @bits16(r1),r2	#check if we are allowed to play
 	jeq novol
+yesvol
 	movb r0, @>8400		# move to the sound chip
 novol
 	mov r7,r7			# check if on music track

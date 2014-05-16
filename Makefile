@@ -46,6 +46,7 @@ OBJECT_LIST=\
   vdp_hchar.o		\
   vdp_hexprint.o	\
   vdp_fasthexprint.o\
+  vdp_fasterhexprint.o\
   vdp_byte2hex.o	\
   vdp_ints.o		\
   vdp_memcpy.o		\

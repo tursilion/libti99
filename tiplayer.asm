@@ -37,10 +37,6 @@
 # C runtime uses >8300, and >8320 is used to store 0s for my own hack
 songwp equ >8322
 
-# screen timeout register - we reset this every frame we run
-# we stop resetting it when the song ends
-scrnto equ >83D6
-
 	dseg
 
 		even
@@ -250,8 +246,6 @@ timingin
 
 	mov r11, @retad		# save return address
 	lwpi songwp			# get 'our' workspace
-
-	seto @scrnto		# reset the screen timeout (and make odd)
 
 	clr r7				# flag for caller - if 0,  the song is over (songwp+14)
 	

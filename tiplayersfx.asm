@@ -3,7 +3,7 @@
 # Released to public domain, may be used freely
 
 # uses 252 bytes of RAM plus 32 bytes for a temporary workspace (284 total)
-# 942 bytes of code
+# 968 bytes of code
 
 # following notes are for /each track/ - so are doubled in worst case.
 # cycle counting an average song gives a range of about 1000-10000 cycles per frame, with an
@@ -13,7 +13,7 @@
 
 # externally visible data (on return):
 # this data applies to music only - SFX data is not retained for external viewing.
-# R7 (songwp+14) contains >FFFF if the song is still playing, and >0000 if it's done
+# R7 (songwp+14) contains >0000 if nothing is playing. MSB is channels for music, LSB is channels for sfx.
 # R9-R10 (songwp+18-20) contains one byte for each voice's current volume
 # R12-R15 (songwp+24-30) contain the current frequency word (last channel is just a noise nibble)
 # Note: for this player, you must not modify R9-R10, or R12-R15, as they are used to restore
@@ -44,10 +44,6 @@
 # however,  the memory is not needed between calls
 # C runtime uses >8300, and >8320 is used to store 0s for my own hack
 songwp equ >8322
-
-# screen timeout register - we reset this every frame we run
-# we stop resetting it when the song ends
-scrnto equ >83D6
 
 	dseg
 
@@ -199,13 +195,13 @@ sfxinitsfx
 	b *r11				# already higher
 
 playsfx
-	mov r3,@sfxflag		# save off the priority
 	lwpi songwp
 
 	mov @sfxflag,r0
 	jeq sfxinit2
 	bl @restorechans	# we were already playing, so we must restore the channels
 sfxinit2
+	mov @>8306,@sfxflag	# save off the priority (r3)
 	mov @>8302,r0		# save the address (r1) in our workspace's R0
 	mov @>8304,r3		# save the index (r2) in our workspace's R3
 
@@ -217,6 +213,7 @@ sfxinit2
 	mpy r3,r4			# get the offset to the requested stream table (into r4,r5)
 	a r5,r0				# add it in
 	a @sfxsongad, r0	# make a memory pointer
+	mov r7,@retad		# save music version of r7
 	li r7,sfxstrm-strm	# base offset
 	jmp sti1
 
@@ -225,18 +222,6 @@ stinitsfx
 	mov r1,@songwp		# save the address in our workspace's R0
 	mov r2,@songwp+6	# save the index in our workspace's R3
 	lwpi songwp
-
-	# put sanish values in the user feedback registers (not for sfx)
-	seto r7				# playing flag
-	mov @volmk,r9		# volume bytes - default to mute! (>90B0)
-	mov @volmk+2,r10	# so we never need to check them  (>D0F0)
-	li r2,>0F0F			# attenuation of >0F on each
-	soc r2,r9
-	soc r2,r10
-	clr r12				# tone words
-	clr r13
-	clr r14
-	clr r15
 
 	li r1, 12
 	li r2, strm
@@ -268,6 +253,25 @@ sti1
 	clr *r2+
 	clr *r2+		
 
+	# put sanish values in the user feedback registers (not for sfx)
+	mov r7,r7			# music will be zeroed
+	jeq clrdata
+	mov @retad,r7		# get song version of r7 back
+	jmp sfxsane
+
+clrdata
+	seto r7				# playing flag
+	mov @volmk,r9		# volume bytes - default to mute! (>90B0)
+	mov @volmk+2,r10	# so we never need to check them  (>D0F0)
+	li r2,>0F0F			# attenuation of >0F on each
+	soc r2,r9
+	soc r2,r10
+	clr r12				# tone words
+	clr r13
+	clr r14
+	clr r15
+
+sfxsane
 	lwpi >8300			# c workspace
 	b *r11				# back to caller
 
@@ -283,6 +287,12 @@ sts1
 	clr *r0+			# get stream offset 
 	dec r1
 	jne sts1
+
+	mov @volmk,r9		# volume bytes - default to mute! (>90B0)
+	mov @volmk+2,r10	# so we never need to check them  (>D0F0)
+	li r1,>0F0F			# attenuation of >0F on each
+	soc r1,r9
+	soc r1,r10
 
 	clr r7				# clear playing flag
 	lwpi >8300			# c workspace
@@ -363,8 +373,6 @@ timinginsfx
 	lwpi songwp			# get 'our' workspace
 
 # process sound effects
-
-	seto @scrnto		# reset the screen timeout (and make odd)
 	clr @playmask		# clear the channel masking data (MSB = in, LSB = out)
 
 	li r7,sfxstrm-strm	# offset for sound effects
@@ -386,8 +394,7 @@ runpart2
 	clr r7				# offset for music
 	bl @playone
 
-	clr r7				# prepare flag mask
-	movb @playmask,r7	# copy output flags to MSB only
+	mov @playmask,r7	# copy output flags to R7 (MSB music, LSB sfx)
 
 	mov @retad2,r11		# get return adress back
 	b *r11				# back to caller
