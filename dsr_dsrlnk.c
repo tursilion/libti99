@@ -5,6 +5,9 @@
 #include "vdp.h"
 #include "string.h"
 
+// NOTE: because this does not return the entire PAB back to you,
+// if you need data from the DSR other than the error byte
+// (ie: RECORD NUMBER), then you have to get it yourself!
 unsigned char dsrlnk(struct PAB *pab, unsigned int vdp) {
 	unsigned char x;
 
@@ -30,3 +33,4 @@ unsigned char dsrlnk(struct PAB *pab, unsigned int vdp) {
 	// now return the result
 	return GET_ERROR(vdpreadchar(vdp+1));
 }
+

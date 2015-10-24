@@ -8,5 +8,9 @@ kscan.h	-	include file for using the console's kscan code (including joysticks)
 player.h-	include file for using my compressed VGM audio player
 sound.h	-	helper definitions for the sound chip and console sound interrupt player
 vdp.h	-	helper definitions and functions for the VDP and console interrupt
+puff.h - deflate implementation - from the zlib library and created by Mark Adler    madler@alumni.caltech.edu
+
+Note that the current version of puff has all error handling disabled, it just calls halt().
+So test your streams before using it!
 
 The GCC patches and build instructions (not related to this lib) are here: http://atariage.com/forums/topic/164295-gcc-for-the-ti/page__st__125

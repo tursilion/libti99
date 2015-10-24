@@ -4,4 +4,3 @@
 #include "vdp.h"
 
 unsigned char gSaveIntCnt;	// console interrupt count byte
-

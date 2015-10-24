@@ -1,8 +1,8 @@
 # Paths to TMS9900 compilation tools
-GAS=/cygdrive/c/cygwin/home/tursi/binutils/bin/tms9900-as
-LD=/cygdrive/c/cygwin/home/tursi/binutils/bin/tms9900-ld
-CC=/cygdrive/c/cygwin/home/tursi/gcc/bin/tms9900-gcc
-AR=/cygdrive/c/cygwin/home/tursi/binutils/bin/tms9900-ar
+GAS=/cygdrive/c/cygwin/home/tursi/bin/tms9900-as
+LD=/cygdrive/c/cygwin/home/tursi/bin/tms9900-ld
+CC=/cygdrive/c/cygwin/home/tursi/bin/tms9900-gcc
+AR=/cygdrive/c/cygwin/home/tursi/bin/tms9900-ar
 CP=/usr/bin/cp
 ELF2EA5=/cygdrive/c/cygwin/home/tursi/elf2ea5
 EA5PLIT=/cygdrive/c/cygwin/home/tursi/ea5split/ea5split
@@ -31,6 +31,8 @@ OBJECT_LIST=\
   kscanfast.o		\
   joystfast.o		\
   player.o			\
+  puff.o        \
+  puff16k.o     \
   tiplayer.o		\
   tiplayer30hz.o	\
   tiplayersfx.o		\

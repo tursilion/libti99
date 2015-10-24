@@ -6,7 +6,7 @@
 
 // uses: scratchpad >8340-8348, >8354, >8355, >8356, >83d0, >83d2, GPLWS
 
-#define DSR_NAME_LEN	*((volatile unsigned char*)0x8355)
+#define DSR_NAME_LEN	*((volatile unsigned int*)0x8354)
 
 void __attribute__((noinline)) dsrlnkraw(unsigned int vdp) {
 	// modified version of the e/a DSRLNK, for data >8 (DSR) only
