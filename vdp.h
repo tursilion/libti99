@@ -218,6 +218,14 @@ void vdpscreenchar(int pAddr, int ch);
 // Interrupts are disabled upon exit.
 void vdpwaitvint();
 
+// putchar - writes a single character with limited formatting to the bottom of the screen
+// Inputs: character to emit
+// Returns: character input
+// All characters are emitted except \r and \n which is handled for scrn_scroll and next line.
+// It works in both 32x24 and 40x24 modes. Tracking of the cursor is thus 
+// automatic in this function, and it pulls in scrn_scroll.
+int putchar(int x);
+
 // putstring - writes a string with limited formatting to the bottom of the screen
 // Inputs: NUL-terminated string to write
 // This function only emits printable ASCII characters (32-127). It works in both
@@ -225,6 +233,13 @@ void vdpwaitvint();
 // \n to go to a new line and scroll the screen. Tracking of the cursor is thus 
 // automatic in this function, and it pulls in scrn_scroll.
 void putstring(char *s);
+
+// printf - writes a string with limited formatting. Only supports a very small subset
+// of formatting at the moment. Supports width (for most fields), s, u, i, d, c and X
+// (X is byte only). This function will call in putchar().
+// Inputs: format string, and varable argument list
+// Returns: always returns 0
+int printf(char *str, ...);
 
 // hexprint - generates a 2 character hex string from an int and calls putstring to print it
 void hexprint(unsigned char x);

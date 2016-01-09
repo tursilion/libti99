@@ -90,7 +90,7 @@
 #ifdef HAS_SETJMP
 #include <setjmp.h>             /* for setjmp(), longjmp(), and jmp_buf */
 #else
-#include "halt.h"
+#include "system.h"
 #endif
 
 #include "puff.h"               /* prototype for puff() */

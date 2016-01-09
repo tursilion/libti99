@@ -17,7 +17,7 @@ OBJECT_LIST_EA5=\
 NAME=libti99.a
 
 C_FLAGS=\
-  -O2 -std=c99 -s --save-temp
+  -O2 -std=c99 -s --save-temp -I./ -fno-builtin
 
 # List of compiled objects used in executable
 OBJECT_LIST=\
@@ -26,7 +26,6 @@ OBJECT_LIST=\
   dsr_dsrlnkraw.o	\
   grom_readdata.o	\
   grom_writedata.o	\
-  halt.o			\
   kscan.o			\
   kscanfast.o		\
   joystfast.o		\
@@ -38,7 +37,15 @@ OBJECT_LIST=\
   tiplayersfx.o		\
   tiplayersfx30hz.o	\
   stcount.o			\
+  str_atoi.o      \
+  str_gets.o      \
+  str_int2str.o   \
+  str_memcpy.o    \
+  str_strcpy.o    \
   str_strlen.o		\
+  str_uint2str.o  \
+  sys_exit.o      \
+  sys_halt.o			\
   vdp_char.o		\
   vdp_charset.o		\
   vdp_charsetlc.o	\
@@ -54,6 +61,8 @@ OBJECT_LIST=\
   vdp_memcpy.o		\
   vdp_memread.o		\
   vdp_memset.o		\
+  vdp_printf.o    \
+  vdp_putchar.o   \
   vdp_putstring.o	\
   vdp_readchar.o	\
   vdp_screenchar.o	\

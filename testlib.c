@@ -1,5 +1,5 @@
 #include "vdp.h"
-#include "halt.h"
+#include "system.h"
 #include "puff.h"
 #include "puff16k.h"
 
