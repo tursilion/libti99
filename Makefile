@@ -29,6 +29,7 @@ OBJECT_LIST=\
   kscan.o			\
   kscanfast.o		\
   joystfast.o		\
+  math_sqrt.o   \
   player.o			\
   puff.o        \
   puff16k.o     \
