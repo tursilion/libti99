@@ -3,6 +3,7 @@
 
 // string to integer
 int atoi(char *s) {
+  int old;
   int out = 0;
   int neg = 0;
   
@@ -17,9 +18,14 @@ int atoi(char *s) {
 
   // check whole digits
   while ((*s >= '0') && (*s <= '9')) {
+    old = out;
     out *= 10;
     out += (*s)-'0';
     ++s;
+    if (out < old) {
+      // too big, wrapped around
+      return 0;
+    }
   }
 
   if (neg) out = 0-out;
