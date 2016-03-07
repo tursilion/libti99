@@ -176,7 +176,7 @@ int set_bitmap(int sprite_mode);
 
 // writestring - writes an arbitrary string of characters at any position on the screen
 // Inputs: row and column (zero-based), NUL-terminated string to write
-// Note: will not write the correct location in text mode
+// Note: supports text mode
 void writestring(int row, int col, char *pStr);
 
 // vdpmemset - sets a count of VDP memory bytes to a value
