@@ -287,7 +287,8 @@ stplx1
 	jeq stplx2			# no override active
 
 	dec @8(r6)			# tmocnt (count down)
-	jmp postld			# go get the data
+	movb @16(r6),r8	# tmovr - get the override byte	
+	jmp postld			# jump ahead to process
 
 stplx2
 	bl @getbyte			# get a compressed byte
@@ -314,9 +315,8 @@ stpl3
 	swpb r8
 	mov r8,@8(r6)			# tmocnt
 	
-	clr @16(r6)				# tmovr
 	movb @specdt,r8		# was 0x7d,0x7e,0x7f
-	movb r8,@16(r6)
+	movb r8,@16(r6)		# tmovr
 	jmp postld
 
 stborc
@@ -324,16 +324,14 @@ stborc
 	swpb r8
 	mov r8,@8(r6)			# tmocnt
 	
-	clr @16(r6)				# tmovr
 	movb @specdt+1,r8	# was 0x7b or 0x7c
-	movb r8,@16(r6)		# was 0x7b or 0x7c
+	movb r8,@16(r6)		# tmovr
 	jmp postld
 
 stshrt
 	mov @dat01,@8(r6)		# tmocnt
-	clr @16(r6)				# tmovr
 	movb @specdt+2,r8	# was a 0x7a
-	movb r8,@16(r6)
+	movb r8,@16(r6)			# tmovr
 
 postld
 # r8 now has tmovr
