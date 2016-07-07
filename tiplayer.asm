@@ -125,8 +125,8 @@ getb3double
 	swpb r2						# store in the lsbyte
 	dec r2						# we are going to consume one byte below,  and we know it's at least 4
 	mov r2, @4(r3)				# write it back
-	movb *r1+, @songwp+5	# get backref pointer (can't use mov,  might be misaligned, r2 LSB)
 	movb *r1+, r2			# the absolute address saves 2 swpb's for 2 bytes code and 8 cycles
+	movb *r1+, @songwp+5	# get backref pointer (can't use mov,  might be misaligned, r2 LSB)
 	a @songad, r2			# make into a pointer
 
 getb3fin

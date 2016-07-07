@@ -151,11 +151,12 @@ getb3
 
 getb3double
 	andi r2, 0x3f00				# mask it
-	swpb r2						# store in the lsbyte
-	dec r2						# we are going to consume one byte below,  and we know it's at least 4
+	swpb r2								# store in the lsbyte
+	dec r2								# we are going to consume one byte below,  and we know it's at least 4
 	mov r2, @4(r3)				# write it back
+	movb *r1+, r2					# the absolute address saves 2 swpb's for 2 bytes code and 8 cycles
 	movb *r1+, @songwp+5	# get backref pointer (can't use mov,  might be misaligned, r2 LSB)
-	movb *r1+, r2			# the absolute address saves 2 swpb's for 2 bytes code and 8 cycles
+
 	a @songad, r2				# make into a pointer
 
 getb3fin
@@ -409,6 +410,15 @@ runpart2
 	mov @playmask,r7	# copy output flags to R7 (MSB music, LSB sfx)
 
 	mov @retad2,r11		# get return adress back
+
+## temp hack - measuring time ##
+#	li r0, >0287
+#	movb r0, @>8c02
+#	swpb r0
+#	movb r0, @>8c02
+#################################
+
+timingoutsfx	
 	b *r11				# back to caller
 
 bstpl2
@@ -579,16 +589,8 @@ stpl2
 
 gohome
 
-## temp hack - measuring time ##
-#	li r0, >0287
-#	movb r0, @>8c02
-#	swpb r0
-#	movb r0, @>8c02
-#################################
-
 	mov @retad, r11		# get return address back
 
-timingoutsfx
 	b *r11				# now done 1 tick
 
 # moved down here so that playing tones doesn't get more expensive
