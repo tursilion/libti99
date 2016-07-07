@@ -51,6 +51,8 @@ tmocnt	bss 8
 tmovr	bss 8
 # pointer to the song data (needed for offset fixups)
 songad	bss 2
+# pointer to the frequency table (used for speedup)
+freqad	bss 2
 # return address
 retad	bss 2
 # frame flag (a bit wasteful but time efficient - you can also
@@ -59,7 +61,6 @@ frflag	bss 2
 
 	pseg 
 # get a compressed byte from a stream - stream data base in r3
-# note: assumes stream data is based at STRM
 # byte is return in r0 msb
 # uses r1, r2, may seto r7
 	even
@@ -67,7 +68,7 @@ getbyte
 	mov @2(r3), r1				# test streamref
 	jeq getb1					# not set
 	ci r1,0xffff				# test for repeat count
-	jeq getb1					# not backref
+	jeq getb1noinc			# not backref
 	movb *r1+, r0				# get back-referenced byte
 	mov r1, @2(r3)				# write new value back
 	dec @4(r3)					# decrement counter
@@ -77,24 +78,24 @@ getb2
 	b *r11						# and return
  
 getb1
-	mov @4(r3), r1				# test streamcnt
-	jeq getb3					# out of bytes,  need to figure out the next set
-
+# get byte with increment - need to pre-test for 0, so the jnc
 	dec @4(r3)					# count down
-	jeq getb1inc				# increment always if last byte
-	mov @2(r3), r1				# test streamref is 0
-	jeq getb1inc				# increment if not a ref (it must have been 0xffff here)
-
-# get byte with no increment
-	mov *r3, r1					# get stream pointer
-	movb *r1, r0				# get byte from current run
-	b *r11						# and return
+	jnc getb3						# we went negative, so it must have been 0
 
 getb1inc
-# get byte with increment
 	mov *r3, r1					# get stream pointer
 	movb *r1+, r0				# get byte from current run
 	mov r1, *r3					# write new value back
+	b *r11						# and return
+
+# get byte with no increment - need to pre-test for 0, so the jnc
+getb1noinc
+	dec @4(r3)				# count down
+	jnc getb3					# it went negative, so must have been 0
+	jeq getb1inc			# increment always on last byte
+	
+	mov *r3, r1				# get stream pointer
+	movb *r1, r0			# get byte from current run
 	b *r11						# and return
 
 nostream
@@ -128,10 +129,8 @@ getb3double
 	swpb r2						# store in the lsbyte
 	dec r2						# we are going to consume one byte below,  and we know it's at least 4
 	mov r2, @4(r3)				# write it back
-	movb *r1+, r2				# get backref pointer (can't use mov,  might be misaligned)
-	swpb r2
-	movb *r1+, r2
-	swpb r2						# get back into correct order
+	movb *r1+, @songwp+5	# get backref pointer (can't use mov,  might be misaligned, r2 LSB)
+	movb *r1+, r2			# the absolute address saves 2 swpb's for 2 bytes code and 8 cycles
 	a @songad, r2				# make into a pointer
 
 getb3fin
@@ -151,7 +150,7 @@ getb4
 	dec r2						# count down - no need to test here
 	mov r2, @4(r3)				# save count
 	mov r1, *r3					# save pointer
-	clr @2(r3)					# make sure the streamref is zeroed
+	clr @2(r3)				# make sure the streamref is zeroed (needed for the 0xffff case)
 	b *r11						# and return
 
 getb5
@@ -161,7 +160,7 @@ getb5
 	dec r2						# count down the one we are going to take
 	mov r2,@4(r3)				# save the result
 	movb *r1, r0				# get the appropriate byte - note no increment!
-	mov r1,*r3					# save it (necessary because we incremented above)
+	mov r1,*r3				# save it (necessary because we incremented way above)
 	seto @2(r3)					# set the reference to 0xffff
 	b *r11						# and return
 
@@ -171,9 +170,14 @@ stinit30
 	mov r1,@songwp		# save the address in our workspace's R0
 	mov r2,@songwp+6	# save the index in our workspace's R3
 	lwpi songwp
+	mov r0, @songad		# save it for later
+	inct r0						# point to the frequency table
+	mov *r0,r1				# get the pointer
+	dect r0						# back to the base
+	a r0,r1						# make a real pointer
+	mov r1,@freqad		# and remember it
 	li r1, 12
 	li r2, strm
-	mov r0, @songad		# save it for later
 	mov *r0, r0			# point to the table of pointers
 	li r4,24			# 24 bytes per table
 	mpy r3,r4			# get the offset to the requested stream table (into r4,r5)
@@ -259,9 +263,12 @@ run4real
 
 	clr r7				# flag for caller - if 0,  the song is over (songwp+14)
 	
-	clr r4				# counter for 4 voices
-	li r5, strm			# pointing to first stream object
-	li r6, tmcnt		# pointing to first time counter
+#	clr r4				# counter for 4 voices
+#	li r5, strm			# pointing to first stream object
+#	li r6, tmcnt		# pointing to first time counter
+	li r4, 4					# counter for 4 voices
+	li r5, strm+24		# pointing to last stream object
+	li r6, tmcnt+6		# pointing to last time counter
 
 stpl1
 	mov @64(r5), r0		# test time stream pointer (stream 8,  8 bytes per stream,  8*8)
@@ -303,28 +310,33 @@ stpl3
 	ci r8,>7d00
 	jl stborc
 
-	clr @16(r6)				# tmovr
-	movb @specdt,@16(r6)	# was 0x7d,0x7e,0x7f
 	ai r8,->7c00
 	swpb r8
 	mov r8,@8(r6)			# tmocnt
+	
+	clr @16(r6)				# tmovr
+	movb @specdt,r8		# was 0x7d,0x7e,0x7f
+	movb r8,@16(r6)
 	jmp postld
 
 stborc
-	clr @16(r6)				# tmovr
-	movb @specdt+1,@16(r6)	# was 0x7b or 0x7c
 	ai r8,->7a00
 	swpb r8
 	mov r8,@8(r6)			# tmocnt
+	
+	clr @16(r6)				# tmovr
+	movb @specdt+1,r8	# was 0x7b or 0x7c
+	movb r8,@16(r6)		# was 0x7b or 0x7c
 	jmp postld
 
 stshrt
-	clr @16(r6)				# tmovr
-	movb @specdt+2,@16(r6)	# was a 0x7a
 	mov @dat01,@8(r6)		# tmocnt
+	clr @16(r6)				# tmovr
+	movb @specdt+2,r8	# was a 0x7a
+	movb r8,@16(r6)
 
 postld
-	movb @16(r6),r8			# tmovr - get the override byte
+# r8 now has tmovr
 
 stlp3b
 	coc @dat80, r8		# check for tone
@@ -338,7 +350,7 @@ stlp3b
 	jne sttone
 
 #noise channel
-	socb @tonemk+3, r0	# or in the sound command nibble (we know we are on channel 3, save some code+time)
+	ori r0,>e000			# or in the sound command nibble (we know we are on channel 3, save some code+time)
 	movb r0, @>8400		# move to the sound chip
 	swpb r0				# swap data so we can save it off
 	jmp stpl4a
@@ -346,10 +358,7 @@ stlp3b
 sttone
 	swpb r0				# get into correct byte
 	sla r0,1			# make index
-	mov @songad,r1		# we need this address twice
-	a r1,r0				# make pointer
-	inct r1				# pointer to the frequency table
-	a *r1,r0			# and add the offset to the pointer table
+	a @freqad,r0	# make pointer
 	mov *r0, r0			# get the frequency data
 	socb @tonemk(r4), r0	# or in the sound command nibble
 	movb r0, @>8400		# move to the sound chip
@@ -379,11 +388,15 @@ stpl5
 	mov r8, *r6			# save it off
 
 stpl2
-	ai r5, 8			# next stream struct
-	inct r6				# next timer
-	inc r4				# next loop
-	ci r4, 4			# are we done?
-	jne stpl1			# not yet
+#	ai r5, 8					# next stream struct
+#	inct r6						# next timer
+#	inc r4						# next loop
+#	ci r4, 4					# are we done?
+#	jne stpl1					# not yet
+	ai r5, -8					# next stream struct
+	dect r6						# next timer
+	dec r4						# next loop
+	jne stpl1					# not done yet
 
 ## temp hack - measuring time ##
 #	li r0, >0287
