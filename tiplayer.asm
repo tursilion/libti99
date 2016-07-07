@@ -256,7 +256,7 @@ timingin
 #	clr r4						# counter for 4 voices
 #	li r5, strm				# pointing to first stream object
 #	li r6, tmcnt			# pointing to first time counter
-	li r4, 4					# counter for 4 voices
+	li r4, 3					# counter for 4 voices
 	li r5, strm+24		# pointing to last stream object
 	li r6, tmcnt+6		# pointing to last time counter
 
@@ -387,7 +387,7 @@ stpl2
 	ai r5, -8					# next stream struct
 	dect r6						# next timer
 	dec r4						# next loop
-	jne stpl1					# not done yet
+	joc stpl1					# not done yet
 
 ## temp hack - measuring time ##
 #	li r0, >0287

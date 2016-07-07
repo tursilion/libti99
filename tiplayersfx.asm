@@ -71,6 +71,8 @@ sfxtmocnt	bss 8
 sfxtmovr	bss 8
 # pointer to the song data (needed for offset fixups)
 sfxsongad	bss 2
+# pointer to the frequency table (used for speedup)
+sfxfreqad	bss 2
 
 # return addresses
 retad	bss 2
@@ -204,9 +206,15 @@ sfxinit2
 	mov @>8302,r0		# save the address (r1) in our workspace's R0
 	mov @>8304,r3		# save the index (r2) in our workspace's R3
 
+	mov r0, @sfxsongad	# save it for later
+	inct r0						# point to the frequency table
+	mov *r0,r1				# get the pointer
+	dect r0						# back to the base
+	a r0,r1						# make a real pointer
+	mov r1,@sfxfreqad		# and remember it
+	
 	li r1, 12
 	li r2, sfxstrm
-	mov r0, @sfxsongad	# save it for later
 	mov *r0, r0			# point to the table of pointers
 	li r4,24			# 24 bytes per table
 	mpy r3,r4			# get the offset to the requested stream table (into r4,r5)
@@ -412,7 +420,7 @@ playone
 #	clr r4				# counter for 4 voices
 #	li r5, strm			# pointing to first stream object
 #	li r6, tmcnt		# pointing to first time counter
-	li r4, 4					# counter for 4 voices
+	li r4, 3					# counter for 4 voices
 	li r5, strm+24		# pointing to last stream object
 	li r6, tmcnt+6		# pointing to last time counter
 	a r7,r5				# add offset
@@ -567,7 +575,7 @@ stpl2
 	ai r5, -8					# next stream struct
 	dect r6						# next timer
 	dec r4						# next loop
-	jeq gohome				# not done yet
+	jnc gohome				# not done yet
 	b @stpl1			# not yet
 
 gohome
