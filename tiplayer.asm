@@ -32,6 +32,9 @@
 	def timingin
 	def timingout
 
+# helpful for finding the variable for volume attenuation
+	def atten
+
 # must point to a workspace that the player can corrupt at will, 
 # however,  the memory is not needed between calls
 # C runtime uses >8300, and >8320 is used to store 0s for my own hack
@@ -193,15 +196,11 @@ sti1
 	dec r1
 	jne sti1
 
-	clr *r2+			# clear four time counters
+	clr *r2+			# clear four byte time counters
 	clr *r2+
-	clr *r2+
-	clr *r2+		
 
-	clr *r2+			# clear four timer override counters
+	clr *r2+			# clear four byte timer override counters
 	clr *r2+
-	clr *r2+
-	clr *r2+		
 
 	# put sanish values in the user feedback registers
 	seto r7				# playing flag

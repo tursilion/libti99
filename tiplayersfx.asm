@@ -1,5 +1,3 @@
- def stvl
-
 # 60hz music and sound effects player with sfx priority
 # 2014 by Tursi aka Mike Brent
 # Released to public domain, may be used freely
@@ -42,6 +40,9 @@
 	def timinginsfx
 	def timingoutsfx
 
+# helpful for finding the variable for volume attenuation
+	def atten
+
 # must point to a workspace that the player can corrupt at will, 
 # however,  the memory is not needed between calls
 # C runtime uses >8300, and >8320 is used to store 0s for my own hack
@@ -62,23 +63,23 @@ tmovr	bss 4
 songad	bss 2
 # pointer to the frequency table (used for speedup)
 freqad	bss 2
-# global attenuation (in MSB, 0 (no attenuation), f (max attenuation))
-# defaults to 0 on every stinit!
-atten bss 2
 
 # pointers,  in order streampos,  streamref,  streamcnt, streambase, repeated 12 times (for decompression)
 sfxstrm		bss 96
-# time countdown for each of 4 channels (only need bytes, but using words for simplicity)
-sfxtmcnt	bss 8
-# count of override for timestreams (only need bytes)
-sfxtmocnt	bss 8
-# type of override for timestreams (only need bytes)
-sfxtmovr	bss 8
+# time countdown for each of 4 channels (bytes)
+sfxtmcnt	bss 4
+# count of override for timestreams (bytes)
+sfxtmocnt	bss 4
+# type of override for timestreams (bytes)
+sfxtmovr	bss 4
 # pointer to the song data (needed for offset fixups)
 sfxsongad	bss 2
 # pointer to the frequency table (used for speedup)
 sfxfreqad	bss 2
 
+# global attenuation (in MSB, 0 (no attenuation), f (max attenuation))
+# defaults to 0 on every stinit!
+atten bss 2
 # return addresses
 retad	bss 2
 retad2	bss 2
@@ -261,15 +262,11 @@ sti1
 	dec r1
 	jne sti1
 
-	clr *r2+			# clear four time counters
+	clr *r2+			# clear four byte time counters
 	clr *r2+
-	clr *r2+
-	clr *r2+		
 
-	clr *r2+			# clear four timer override counters
+	clr *r2+			# clear four byte timer override counters
 	clr *r2+
-	clr *r2+
-	clr *r2+		
 
 	# put sanish values in the user feedback registers (not for sfx)
 	mov r7,r7			# music will be zeroed
@@ -492,7 +489,7 @@ stpl3
 	
 stborc
 	ai r8,->7a00
-	movb r8,@8(r6)		# tmocnt
+	movb r8,@4(r6)		# tmocnt
 	
 	movb @specdt+1,r8	# was 0x7b or 0x7c
 	movb r8,@8(r6)		# tmovr
@@ -558,10 +555,10 @@ stpl4
 	mov r5, r3
 	ai r3, 32			# 4 streams up,  4*8
 	bl @getbyte		# get it
-#	ab @atten,r0  # add global volume attenuation
-#	ci r0,>1000   # can we get around this?       
-#  jl stvl       # it's okay
-#	li r0,>0f00   # clamp to silence                                    
+  ab @atten,r0  # add global volume attenuation
+	ci r0,>1000   # can we get around this?       
+  jl stvl       # it's okay
+	li r0,>0f00   # clamp to silence                                    
 stvl
 	socb @volmk(r4), r0	# or in the sound command nibble
 	mov r4,r1			# need this to check
