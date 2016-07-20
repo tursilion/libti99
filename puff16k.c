@@ -30,6 +30,7 @@
  
 /* modified by TURSI to call halt() instead of longjmp */
 // define SLOW saves about 30 bytes.
+//#define SLOW
 
 /*
  * Change history:

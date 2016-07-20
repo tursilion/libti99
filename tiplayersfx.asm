@@ -1,3 +1,5 @@
+ def stvl
+
 # 60hz music and sound effects player with sfx priority
 # 2014 by Tursi aka Mike Brent
 # Released to public domain, may be used freely
@@ -50,16 +52,19 @@ songwp equ >8322
 		even
 # pointers,  in order streampos,  streamref,  streamcnt, streambase, repeated 12 times (for decompression)
 strm	bss 96
-# time countdown for each of 4 channels (only need bytes, but using words for simplicity)
-tmcnt	bss 8
-# count of override for timestreams (only need bytes)
-tmocnt	bss 8
-# type of override for timestreams (only need bytes)
-tmovr	bss 8
+# time countdown for each of 4 channels (bytes)
+tmcnt	bss 4
+# count of override for timestreams (bytes)
+tmocnt	bss 4
+# type of override for timestreams (bytes)
+tmovr	bss 4
 # pointer to the song data (needed for offset fixups)
 songad	bss 2
 # pointer to the frequency table (used for speedup)
 freqad	bss 2
+# global attenuation (in MSB, 0 (no attenuation), f (max attenuation))
+# defaults to 0 on every stinit!
+atten bss 2
 
 # pointers,  in order streampos,  streamref,  streamcnt, streambase, repeated 12 times (for decompression)
 sfxstrm		bss 96
@@ -285,8 +290,9 @@ clrdata
 	clr r15
 
 sfxsane
+	clr @atten			# maximum volume
 	lwpi >8300			# c workspace
-	b *r11				# back to caller
+	b *r11					# back to caller
 
 # call to stop the tune or initialize to silence
 # uses r0, r1
@@ -333,7 +339,8 @@ allstopsfx
 
 dat80	data >8000
 dat40	data >4000
-dat01	data >0001
+# dat01 is just a label now, we can use the first byte of bits
+dat01
 bits	data >0102, >0408
 bits16	data >0001, >0002, >0004, >0008
 tonemk	data >80a0, >c0e0
@@ -427,12 +434,9 @@ bstpl2
 playone
 	mov r11,@retad		# save return address
 
-#	clr r4				# counter for 4 voices
-#	li r5, strm			# pointing to first stream object
-#	li r6, tmcnt		# pointing to first time counter
 	li r4, 3					# counter for 4 voices
 	li r5, strm+24		# pointing to last stream object
-	li r6, tmcnt+6		# pointing to last time counter
+	li r6, tmcnt+3		# pointing to last time counter
 
 	a r7,r5				# add offset
 	a r7,r6				# add offset
@@ -443,18 +447,18 @@ stpl1
 
 	socb @bits(r4),@playmask	# set the active bit
 
-	dec *r6				# decrement timer
+	sb @dat01,*r6		# decrement timer
 	joc bstpl2			# was not zero,  next loop (this will catch 0 -> -1, as desired)
 
 stplx1
 	mov r5, r3
 	ai r3, 64			# pointer to time stream (stream 8)
 
-	mov @8(r6),r0		# tmocnt
+	movb @4(r6),r0	# tmocnt
 	jeq stplx2			# no override active
 
-	dec @8(r6)			# tmocnt (count down)
-	movb @16(r6),r8	# tmovr - get the override byte	
+	sb @dat01,@4(r6) # tmocnt (count down)
+	movb @8(r6),r8	# tmovr - get the override byte	
 	jmp postld			# jump ahead to process
 
 stplx2
@@ -480,26 +484,24 @@ stpl3
 	jl stborc
 
 	ai r8,->7c00
-	swpb r8
-	mov r8,@8(r6)			# tmocnt
+	movb r8,@4(r6)		# tmocnt
 	
 	movb @specdt,r8		# was 0x7d,0x7e,0x7f
-	movb r8,@16(r6)		# tmovr
+	movb r8,@8(r6)		# tmovr
 	jmp postld
 	
 stborc
 	ai r8,->7a00
-	swpb r8
-	mov r8,@8(r6)			# tmocnt
+	movb r8,@8(r6)		# tmocnt
 	
 	movb @specdt+1,r8	# was 0x7b or 0x7c
-	movb r8,@16(r6)		# tmovr
+	movb r8,@8(r6)		# tmovr
 	jmp postld
 
 stshrt
-	mov @dat01,@8(r6)		# tmocnt
+	movb @dat01,@4(r6)	# tmocnt
 	movb @specdt+2,r8		# was a 0x7a
-	movb r8,@16(r6)			# tmovr
+	movb r8,@8(r6)			# tmovr
 
 postld
 # r8 now has tmovr
@@ -555,7 +557,12 @@ stpl4
 
 	mov r5, r3
 	ai r3, 32			# 4 streams up,  4*8
-	bl @getbyte			# get it
+	bl @getbyte		# get it
+#	ab @atten,r0  # add global volume attenuation
+#	ci r0,>1000   # can we get around this?       
+#  jl stvl       # it's okay
+#	li r0,>0f00   # clamp to silence                                    
+stvl
 	socb @volmk(r4), r0	# or in the sound command nibble
 	mov r4,r1			# need this to check
 	sla r1,1			# make index
@@ -570,19 +577,12 @@ novol
 
 stpl5
 	andi r8, >3f00		# mask off the count
-	swpb r8				# make int
-	dec r8				# decement for this tick
-	mov r8, *r6			# save it off
+	sb @dat01,r8			# decement for this tick
+	movb r8, *r6			# save it off
 
 stpl2
-#	ai r5, 8					# next stream struct
-#	inct r6						# next timer
-#	inc r4						# next loop
-#	ci r4, 4					# are we done?
-#	jeq gohome			# yes, exit
-#	b @stpl1			# not yet
 	ai r5, -8					# next stream struct
-	dect r6						# next timer
+	dec r6						# next timer
 	dec r4						# next loop
 	jnc gohome				# not done yet
 	b @stpl1			# not yet
