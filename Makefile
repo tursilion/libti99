@@ -1,11 +1,17 @@
-# Paths to TMS9900 compilation tools
-GAS=tms9900-as
-LD=tms9900-ld
-CC=tms9900-gcc
-AR=tms9900-ar
-CP=cp
-ELF2EA5=elf2ea5
-EA5PLIT=ea5split
+# Paths to TMS9900 compilation tools 
+# ( Set in environment to override paths )
+TMS9900_DIR?=/cygdrive/c/cygwin/home/tursi/bin
+ELF2EA5_DIR?=/cygdrive/c/cygwin/home/tursi
+EA5_SPLIT_DIR?=/cygdrive/c/cygwin/home/tursi/ea5split
+CLASSIC99_DSK1?=/cygdrive/c/classic99/dsk1/
+
+# Full paths to the executables used
+GAS=$(TMS9900_DIR)/tms9900-as
+LD=$(TMS9900_DIR)/tms9900-ld
+CC=$(TMS9900_DIR)/tms9900-gcc
+AR=$(TMS9900_DIR)/tms9900-ar
+ELF2EA5=$(ELF2EA5_DIR)/elf2ea5
+EA5_SPLIT=$(EA5_SPLIT_DIR)/ea5split
 
 LDFLAGS_EA5=\
   --section-start .text=a000 --section-start .data=2080 -M
@@ -91,8 +97,8 @@ library: $(OBJECT_LIST)
 test: library testlib.o $(OBJECT_LIST_EA5) 
 	$(LD) $(OBJECT_LIST_EA5) testlib.o $(LDFLAGS_EA5) -L. -lti99 -o testlib.ea5.elf > ea5.map
 	$(ELF2EA5) testlib.ea5.elf testlib.ea5.bin
-	$(EA5PLIT) testlib.ea5.bin
-	$(CP) TESTLI* /home/matthew/classic99/DSK1/
+	$(EA5_SPLIT) testlib.ea5.bin
+	cp TESTLI* $(CLASSIC99_DSK1)
 
 # Recipe to clean all compiled objects
 .phony clean:
