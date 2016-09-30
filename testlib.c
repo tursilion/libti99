@@ -1,7 +1,6 @@
 #include "vdp.h"
 #include "system.h"
 #include "puff.h"
-#include "puff16k.h"
 
 unsigned char helloworldraw[] = {
   0xF3,0x48,0xCD,0xC9 ,0xC9 ,0x57 ,0x70 ,0xF6 ,0xF7 
@@ -36,18 +35,13 @@ int main() {
 	putstring(outbuf);
 	putstring("\n");
 
-  /* ROM data preloaded to straddle 8k boundary starting at 0x7ff0 */
-  *((unsigned char*)0x6000) = 0;  // first bank
-	dstlen=32;
-	srclen=sizeof(helloworldraw);
-	x = puff16k(outbuf, &dstlen, (unsigned char*)0x7ff0, &srclen);
-	putstring("\npuff16k() returned: ");
-	hexprint(x);
-	putstring("\n");
-	putstring(outbuf);
-	putstring("\n");
+	unsigned char n;
+	for (;;) {
+	  VDP_WAIT_VBLANK_CRU_STATUS(n);
+	  writestring(16,0,">");
+	  faster_hexprint(n);
+	}
 
-	
 	halt();
 
 	return 0;
