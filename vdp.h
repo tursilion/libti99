@@ -114,6 +114,7 @@ inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+
 // settings for mode register 0
 #define VDP_MODE0_BITMAP		0x02		// set bitmap mode
 #define VDP_MODE0_EXTVID		0x01		// enable external video (not connected on TI-99/4A)
+#define VDP_MODE0_80COL                 0x04            // enable 9938/F18A 80 column
 
 // settings for mode register 1
 #define VDP_MODE1_16K			0x80		// set 16k mode (4k mode if cleared)
@@ -163,6 +164,12 @@ int set_graphics(int sprite_mode);
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
 // The screen is blanked until you do this write, to allow you time to set it up
 int set_text();
+
+// set_text80 - sets up 80 column text mode - 80x24. 
+// Inputs: none
+// Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
+// The screen is blanked until you do this write, to allow you time to set it up
+int set_text80();
 
 // set_multicolor - sets up multicolor mode - 64x48, 256 chars, color, sprites
 // Inputs: pass in VDP_SPR_xxx for the sprite mode you want
