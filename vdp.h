@@ -35,6 +35,9 @@ inline int VDP_SCREEN_POS(unsigned int r, unsigned int c)			{	return (((r)<<5)+(
 // get a screen offset for 40x24 text mode
 inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+((r)<<3)+(c));				}
 
+// get a screen offset for 80x24 text mode
+inline int VDP_SCREEN_TEXT80(unsigned int r, unsigned int c)	    {	return (((r)<<6)+((r)<<4)+(c));				}
+
 //*********************
 // VDP Console interrupt control
 //*********************
