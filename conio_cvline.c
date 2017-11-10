@@ -7,5 +7,5 @@ void cvline(int len) {
         if (conio_y > 23) break;
         vdpchar(conio_getvram(), '|');
     }
-    gotoxy(conio_x, orig_conio_y);
+    gotoy(orig_conio_y);
 }

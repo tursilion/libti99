@@ -1,8 +1,22 @@
 #include "conio.h"
 
+void inc_row() {
+    if (conio_y >= 23) {
+        scrn_scroll();
+        conio_y=23;
+    } else {
+        ++conio_y;
+    }
+}
+
 void cputc(int ch) {
     if (ch >= ' ') {
-        cputc(ch);
+        vdpchar(conio_getvram(), ch);
+        ++conio_x;
+        if (conio_x >= nTextEnd-nTextRow) {
+            conio_x=0;
+            inc_row();
+        }
     } else {
         // handle some control codes
         switch (ch) {
@@ -12,7 +26,6 @@ void cputc(int ch) {
                     conio_x = nTextEnd-nTextRow+1;
                     if (conio_y > 0) --conio_y;
                 }
-                gotoxy(conio_x, conio_y);
                 break;
 
             case '\f':          // form feed (clear screen)
@@ -20,19 +33,12 @@ void cputc(int ch) {
                 break;
 
             case '\n':          // newline - next row and return to 0
-                if (conio_y >= 23) {
-                    scrn_scroll();
-                    conio_y = 23;
-                } else {
-                    ++conio_y;
-                }
+                inc_row();
                 conio_x = 0;
-                gotoxy(conio_x, conio_y);
                 break;
 
             case '\r':          // carriage return - return to 0 on same row
                 conio_x = 0;
-                gotoxy(conio_x, conio_y);
                 break;
 
             case '\t':          // tab - move to next tabstop (every 4)
@@ -40,24 +46,12 @@ void cputc(int ch) {
                 while (conio_x&0x03) ++conio_x;   // every four characters is a tab
                 if (conio_x > nTextEnd-nTextRow) {
                     conio_x = 0;
-                    if (conio_y >= 23) {
-                        scrn_scroll();
-                        conio_y = 23;
-                    } else {
-                        ++conio_y;
-                    }
+                    inc_row();
                 }
-                gotoxy(conio_x, conio_y);
                 break;
 
             case '\v':          // vertical tab - next row, same x
-                if (conio_y >= 23) {
-                    scrn_scroll();
-                    conio_y = 23;
-                } else {
-                    ++conio_y;
-                }
-                gotoxy(conio_x, conio_y);
+                inc_row();
                 break;
         }
     }
