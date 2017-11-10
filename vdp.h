@@ -93,6 +93,9 @@ inline int VDP_SCREEN_TEXT80(unsigned int r, unsigned int c)	    {	return (((r)<
 // Note that on the TI interrupts DISABLED is the default state
 #define VDP_INT_ENABLE			__asm__("LIMI 2")
 #define VDP_INT_DISABLE			__asm__("LIMI 0")
+#define VDP_INT_POLL	\
+	VDP_INT_ENABLE;		\
+	VDP_INT_DISABLE;
 
 //*********************
 // Register settings
@@ -160,31 +163,41 @@ inline int VDP_SCREEN_TEXT80(unsigned int r, unsigned int c)	    {	return (((r)<
 // Inputs: pass in VDP_SPR_xxx for the sprite mode you want
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
 // The screen is blanked until you do this write, to allow you time to set it up
-int set_graphics(int sprite_mode);
+int set_graphics_raw(int sprite_mode);
+// this version enables the screen and sets the KSCAN copy for you
+void set_graphics(int sprite_mode);
 
 // set_text - sets up text mode - 40x24, 256 chars, monochrome (color set by VDP_REG_COL), no sprites
 // Inputs: none
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
 // The screen is blanked until you do this write, to allow you time to set it up
-int set_text();
+int set_text_raw();
+// this version enables the screen and sets the KSCAN copy for you
+void set_text();
 
 // set_text80 - sets up 80 column text mode - 80x24. 
 // Inputs: none
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
 // The screen is blanked until you do this write, to allow you time to set it up
-int set_text80();
+int set_text80_raw();
+// this version enables the screen and sets the KSCAN copy for you
+void set_text80();
 
 // set_multicolor - sets up multicolor mode - 64x48, 256 chars, color, sprites
 // Inputs: pass in VDP_SPR_xxx for the sprite mode you want
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
 // The screen is blanked until you do this write, to allow you time to set it up
-int set_multicolor(int sprite_mode);
+int set_multicolor_raw(int sprite_mode);
+// this version enables the screen and sets the KSCAN copy for you
+void set_multicolor(int sprite_mode);
 
 // set_bitmap - sets up graphics II (aka bitmap) mode - 32x24, 768 chars in three zones, color, sprites
 // Inputs: pass in VDP_SPR_xxx for the sprite mode you want
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
 // The screen is blanked until you do this write, to allow you time to set it up
-int set_bitmap(int sprite_mode);
+int set_bitmap_raw(int sprite_mode);
+// this version enables the screen and sets the KSCAN copy for you
+void set_bitmap(int sprite_mode);
 
 // writestring - writes an arbitrary string of characters at any position on the screen
 // Inputs: row and column (zero-based), NUL-terminated string to write
@@ -264,8 +277,10 @@ void fast_hexprint(unsigned char x);
 // scroll and you must set the VDP address before calling
 void faster_hexprint(unsigned char x);
 
-// scrn_scroll - scrolls the screen upwards one line - works in 32x24 and 40x24 modes
+// scrn_scroll - scrolls the screen upwards one line - works in 32x24, 40x24 and 80x24 modes
 void scrn_scroll();
+// fast_scrn_scroll- does the same, but uses 256 fixed bytes to do it faster
+void fast_scrn_scroll();
 
 // hchar - repeat a character horizontally on the screen, similar to CALL HCHAR
 // Inputs: row and column (0-based, not 1-based) to start, character to repeat, number of repetitions (not optional)

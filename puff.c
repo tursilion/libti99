@@ -194,9 +194,8 @@ local int stored(struct state *s)
         return 2;                               /* not enough input */
     len = s->in[s->incnt++];
     len |= s->in[s->incnt++] << 8;
-    if (s->in[s->incnt++] != (~len & 0xff) ||
-        s->in[s->incnt++] != ((~len >> 8) & 0xff))
-        return -2;                              /* didn't match complement! */
+    if (s->in[s->incnt++] != (~len & 0xff)) return -2;
+    if (s->in[s->incnt++] != ((~len >> 8) & 0xff)) return -2;  /* didn't match complement! */
 
     /* copy len bytes from in to out */
     if (s->incnt + len > s->inlen)

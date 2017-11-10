@@ -16,3 +16,13 @@ unsigned int textcolor(unsigned int color) {
     VDP_SET_REGISTER(VDP_REG_COL, conio_scrnCol);
     return ret;
 }
+
+unsigned int bordercolor(unsigned int x) { 
+    (void)x; 
+    return 0;
+}
+
+unsigned char reverse(unsigned char x) { 
+    (void)x;  
+    return 0; 
+}

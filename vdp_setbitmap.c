@@ -1,6 +1,6 @@
 #include "vdp.h"
 
-int set_bitmap(int sprite_mode) {
+int set_bitmap_raw(int sprite_mode) {
 	// note: no masking, full size bitmap mode
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_INT | sprite_mode;
 	VDP_SET_REGISTER(VDP_REG_MODE0, VDP_MODE0_BITMAP);
@@ -16,3 +16,8 @@ int set_bitmap(int sprite_mode) {
 	return unblank;
 }
 
+void set_bitmap(int sprite_mode) {
+    int x = set_bitmap_raw(sprite_mode);
+    VDP_SET_REGISTER(VDP_REG_MODE1, x);
+    VDP_REG1_KSCAN_MIRROR = x;
+}

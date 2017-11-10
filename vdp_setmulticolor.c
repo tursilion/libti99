@@ -1,6 +1,6 @@
 #include "vdp.h"
 
-int set_multicolor(int sprite_mode) {
+int set_multicolor_raw(int sprite_mode) {
 	// this layout is untested
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_MULTI | VDP_MODE1_INT | sprite_mode;
 	VDP_SET_REGISTER(VDP_REG_MODE0, 0);
@@ -14,4 +14,10 @@ int set_multicolor(int sprite_mode) {
 	nTextEnd = 767;
 	nTextPos = nTextRow;
 	return unblank;
+}
+
+void set_multicolor(int sprite_mode) {
+    int x = set_multicolor_raw(sprite_mode);
+    VDP_SET_REGISTER(VDP_REG_MODE1, x);
+    VDP_REG1_KSCAN_MIRROR = x;
 }

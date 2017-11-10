@@ -1,7 +1,7 @@
 #include "vdp.h"
 
-int set_text80() {
-	// this layout is untested but based on tested code
+// requires F18A or 9938!!
+int set_text80_raw() {
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_TEXT | VDP_MODE1_INT;
 	VDP_SET_REGISTER(VDP_REG_MODE0, VDP_MODE0_80COL);
 	VDP_SET_REGISTER(VDP_REG_MODE1, VDP_MODE1_16K | VDP_MODE1_TEXT);
@@ -12,4 +12,10 @@ int set_text80() {
 	nTextEnd = (80 * 24) - 1;
 	nTextPos = nTextRow;
 	return unblank;
+}
+
+void set_text80() {
+    int x = set_text80_raw();
+    VDP_SET_REGISTER(VDP_REG_MODE1, x);
+    VDP_REG1_KSCAN_MIRROR = x;
 }

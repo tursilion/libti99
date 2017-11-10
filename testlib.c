@@ -1,6 +1,6 @@
-#include "vdp.h"
 #include "system.h"
 #include "puff.h"
+#include "conio.h"
 
 unsigned char helloworldraw[] = {
   0xF3,0x48,0xCD,0xC9 ,0xC9 ,0x57 ,0x70 ,0xF6 ,0xF7 
@@ -13,35 +13,169 @@ unsigned char outbuf[32];
 unsigned int dstlen;
 unsigned int srclen;
 
+// repeat this to test the screen modes
+void testprintf() {
+    unsigned char x, y;
+
+    cprintf("\fTesting printf...\n\n");
+    cprintf("1\t2\t3\t4\t\n");
+    cprintf("Superbug\b\b\bman\n");
+    cprintf("Bad  Thing\rGood\n");
+    cprintf("Broken\v line\n");
+
+    // https://alvinalexander.com/programming/printf-format-cheat-sheet
+    cprintf("==3d==\n");
+    cprintf("  0 = %3d\n", 0);
+    cprintf("12345 = %3d\n", 12345);
+    cprintf("-10 = %3d\n", -10);
+    cprintf("-12345 = %3d\n", -12345);
+
+    cprintf("==-3d==\n");
+    cprintf("  0 = %-3d\n", 0);
+    cprintf("12345 = %-3d\n", 12345);
+    cprintf("-10 = %-3d\n", -10);
+    cprintf("-12345 = %-3d\n", -12345);
+
+    cprintf("==03d==\n");
+    cprintf("  0 = %03d\n", 0);
+    cprintf("12345 = %03d\n", 12345);
+    cprintf("-10 = %03d\n", -10);
+    cprintf("-12345 = %03d\n", -12345);
+
+    cgetc();
+
+    cprintf("==+==\n");
+    cprintf("%+3d\n", 5);
+    cprintf("%+03d\n", 5);
+    cprintf("%-+03d\n", 5);
+    cprintf("%3.3d\n", 12345);
+
+    cprintf("==Hello==\n");
+    cprintf("'%s'\n", "Hello");
+    cprintf("'%10s'\n", "Hello");
+    cprintf("'%-10s'\n", "Hello");
+    cprintf("'%3.3s'\n", "Hello");
+
+    cprintf("Char (Hi!): %c%c%c\n", 'H', 'i', '!');
+    cprintf("Decimal (123 -456): %i %d\n", 123, -456);
+    cprintf("Unsigned (123 65080): %u %u\n", 123, -456);
+    cprintf("Uppercase Hex (ABCD): %X\n", 0xABCD);
+    cprintf("Lowercase Hex (abcd): %x\n", 0xABCD);
+    cprintf("Octal (17001): %o\n", 7681);
+    cprintf("Percent: %%\n");
+
+    screensize(&x, &y);
+    cprintf("Screen is %dx%d, Cursor at %d,%d\n", x, y, wherex(), wherey());
+
+    cputs("Press any key press any key Press any key press any key Press any key press any key...");
+    cgetc();
+}
+
 int main() {
-	int x = set_text();
-	VDP_SET_REGISTER(VDP_REG_MODE1, x);
+	set_text();
 	charsetlc();
-	putstring("hello world!\n");
-	putstring("\nsizeof(int): ");
+
+    putstring("hello world!\n");
+	putstring("\nsizeof(int):  ");
 	hexprint(sizeof(int));
-	putstring("\nsizeof(long):");
+	putstring("\nsizeof(long): ");
 	hexprint(sizeof(long));
 	putstring("\nsizeof(short):");
 	hexprint(sizeof(short));
-	putstring("\n");
-	
+    putstring("\nsizeof(float):");
+    hexprint(sizeof(float));
+    putstring("\n");
+
 	dstlen=32;
 	srclen=sizeof(helloworldraw);
-	x = puff(outbuf, &dstlen, helloworldraw, &srclen);
+	int x = puff(outbuf, &dstlen, helloworldraw, &srclen);
 	putstring("\npuff() returned: ");
 	hexprint(x);
 	putstring("\n");
+    outbuf[31] = '\0';
 	putstring(outbuf);
 	putstring("\n");
 
-	unsigned char n;
-	for (;;) {
-	  VDP_WAIT_VBLANK_CRU_STATUS(n);
-	  writestring(16,0,">");
-	  faster_hexprint(n);
-	}
+    // testing conio... better screen output code
+    cursor(1);
+    gotoxy(0, 0);
+    cgetc();
 
+    clrscr();
+    cursor(0);
+
+    for (int idx = 1; idx < 5; ++idx) {
+        bgcolor(idx);
+        bordercolor(idx + 1);
+        cgetc();
+    }
+
+    cursor(1);
+    vdpmemset(gImage, '*', 768);
+    gotoxy(2, 5);
+    cclear(5);
+    cclearxy(2, 15, 10);
+
+    while (!kbhit());
+
+    clrscr();
+    cprintf("press keys: ");
+    for (int idx = 0; idx < 10; idx++) {
+        unsigned char x = cgetc();
+        cputc(x);
+    }
+
+    clrscr();
+    for (int idx = 0; idx < 5; ++idx) {
+        gotoxy(idx, idx);
+        chline(5);
+        cvline(5);
+    }
+    for (int idx = 5; idx < 10; ++idx) {
+        chlinexy(idx, idx, 10);
+        cvlinexy(idx, idx, 10);
+    }
+
+    cursor(0);
+    cgetc();
+    cursor(1);
+
+    testprintf();
+    
+    set_graphics(0);
+    vdpmemset(gColor, 0x20, 32);    // set color table
+    testprintf();
+
+    set_text80();
+    charsetlc();       // different VRAM layout, reload charset
+    testprintf();
+
+    set_text();
+    charsetlc();       // different VRAM layout, reload charset
+    clrscr();
+
+    for (int idx = 0; idx < 12; ++idx) {
+        cputcxy(idx, idx, '*');
+        cputcxy(39-idx, idx, '*');
+        cputcxy(idx, 23-idx, '*');
+        cputcxy(39-idx, 23-idx, '*');
+    }
+    cgetc();
+
+    clrscr();
+    for (int idx = 0; idx < 5; ++idx) {
+        cputsxy(idx * 2, idx, "Hello!");
+    }
+    cgetc();
+
+    for (int idx = 11; idx < 16; ++idx) {
+        textcolor(idx);
+        while (!kbhit());
+        while (kbhit()) cgetc();
+    }
+    cgetc();
+
+    printf("** DONE **\n");
 	halt();
 
 	return 0;

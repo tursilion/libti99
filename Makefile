@@ -1,9 +1,9 @@
 # Paths to TMS9900 compilation tools 
 # ( Set in environment to override paths )
-TMS9900_DIR?=/cygdrive/c/cygwin/home/tursi/bin
-ELF2EA5_DIR?=/cygdrive/c/cygwin/home/tursi
-EA5_SPLIT_DIR?=/cygdrive/c/cygwin/home/tursi/ea5split
-CLASSIC99_DSK1?=/cygdrive/c/classic99/dsk1/
+TMS9900_DIR?=/home/tursi/gcc9900/bin
+ELF2EA5_DIR?=/home/tursi/gcc9900/bin
+EA5_SPLIT_DIR?=/home/tursi/gcc9900/bin
+CLASSIC99_DSK1?=/mnt/c/classic99/DSK1/
 
 # Full paths to the executables used
 GAS=$(TMS9900_DIR)/tms9900-as
@@ -27,6 +27,23 @@ C_FLAGS=\
 
 # List of compiled objects used in executable
 OBJECT_LIST=\
+  conio_bgcolor.o   \
+  conio_cclear.o    \
+  conio_cclearxy.o  \
+  conio_cgetc.o     \
+  conio_chline.o    \
+  conio_chlinexy.o  \
+  conio_clrscr.o    \
+  conio_cprintf.o   \
+  conio_cputc.o     \
+  conio_cputcxy.o   \
+  conio_cputs.o     \
+  conio_cputsxy.o   \
+  conio_cvline.o    \
+  conio_cvlinexy.o  \
+  conio_getvram.o   \
+  conio_kbhit.o     \
+  conio_screensize.o\
   dsr_files.o		\
   dsr_dsrlnk.o		\
   dsr_dsrlnkraw.o	\
@@ -74,6 +91,7 @@ OBJECT_LIST=\
   vdp_readchar.o	\
   vdp_screenchar.o	\
   vdp_scrnscroll.o	\
+  vdp_fastscrnscroll.o	\
   vdp_setbitmap.o	\
   vdp_setgraphics.o	\
   vdp_setmode.o		\

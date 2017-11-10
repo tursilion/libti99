@@ -1,7 +1,6 @@
 #include "vdp.h"
 
-int set_text() {
-	// this layout is untested but based on tested code
+int set_text_raw() {
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_TEXT | VDP_MODE1_INT;
 	VDP_SET_REGISTER(VDP_REG_MODE0, 0);
 	VDP_SET_REGISTER(VDP_REG_MODE1, VDP_MODE1_16K | VDP_MODE1_TEXT);
@@ -13,3 +12,10 @@ int set_text() {
 	nTextPos = nTextRow;
 	return unblank;
 }
+
+void set_text() {
+    int x = set_text_raw();
+    VDP_SET_REGISTER(VDP_REG_MODE1, x);
+    VDP_REG1_KSCAN_MIRROR = x;
+}
+

@@ -7,17 +7,21 @@
 // vdp_put functions directly.
 
 #include "vdp.h"
+#include <stdarg.h>
+
+// enable this define and rebuild the library to free up 256 bytes of buffer space
+//#define USE_SLOW_SCROLL
 
 // get a VRAM address based on the screen mode we're in
 extern int conio_x,conio_y;
 unsigned int conio_getvram();
 
 // bgcolor - sets the screen background color.
-extern unsigned int conio_scrnCol = (COLOR_WHITE<<4) | COLOR_DKBLUE;
+extern unsigned int conio_scrnCol;
 unsigned int bgcolor(unsigned int color);
 
 // bordercolor - this is the same as the background color on the TI, so we don't set it
-unsigned int bordercolor(unsigned int) { }
+unsigned int bordercolor(unsigned int x);
 
 // cclear - write spaces
 void cclear(unsigned int length);
@@ -46,7 +50,7 @@ int cprintf(const char *fmt, ...);
 void cputc(int ch);
 
 // print a char at location
-void cputcxy(iny xx, int yy, int ch);
+void cputcxy(int xx, int yy, int ch);
 
 // print a string (knows control codes)
 void cputs(const char *s);
@@ -76,7 +80,7 @@ void cvlinexy(int x, int y, int len);
 unsigned char kbhit();
 
 // reverses the text display - not supported but you could make your own character set
-unsigned char reverse(unsigned char) { return 0; }
+unsigned char reverse(unsigned char x);
 
 // returns the dimensions of the screen -- this is not valid until you have called set_graphics(), set_text() or set_text80() (80 for F18/9938 only)
 void screensize(unsigned char *x, unsigned char *y);

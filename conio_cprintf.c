@@ -1,5 +1,4 @@
 #include "conio.h"
-#include <stdarg.h>
 #include "string.h"
 
 char conio_sprintfbuf[256];
@@ -14,11 +13,9 @@ int fmt_print(char *s, int zero, int width, int left, int precis, int plus) {
 
     if ((precis > 0) && (i >= precis)) {
         i = precis;
-        if (plus) {
-            --i;
-            if (width > 0) --width;
-        }
+        if (plus) --i;
     }
+    if ((plus) && (width > 0)) --width;
     if (width <= 0) {
         if (plus) {
             cputc('+');
@@ -39,7 +36,7 @@ int fmt_print(char *s, int zero, int width, int left, int precis, int plus) {
                 ++cnt;
             }
             for (int idx=0; idx<width-i; ++idx) {
-                cputc(pad);
+                cputc(' ');
                 ++cnt;
             }
         } else {
@@ -71,14 +68,10 @@ int cprintf(const char *fmt, ...) {
     int i=0;
     unsigned int u=0;
     char *s=0;
+    int cnt = 0;
 
     va_list argp;
     va_start(argp, fmt);
-    return vcprintf(fmt, argp);
-}
-
-int vcprintf(const char *fmt, va_list argp) {
-    int cnt = 0;
 
     while (*fmt) {
         if (*fmt != '%') {
@@ -140,7 +133,7 @@ int vcprintf(const char *fmt, va_list argp) {
                         i = va_arg(argp, int);
                         s = int2str(i);
                         strcpy(conio_sprintfbuf, s);
-                        cnt += fmt_print(conio_sprintbuf, zero, width, left, precis, plus);
+                        cnt += fmt_print(conio_sprintfbuf, zero, width, left, precis, plus);
                         done = 1;
                         break;
 
@@ -148,7 +141,7 @@ int vcprintf(const char *fmt, va_list argp) {
                         u = va_arg(argp, unsigned int);
                         s = uint2str(u);
                         strcpy(conio_sprintfbuf, s);
-                        cnt += fmt_print(conio_sprintbuf, zero, width, left, precis, plus);
+                        cnt += fmt_print(conio_sprintfbuf, zero, width, left, precis, plus);
                         done = 1;
                         break;
 
@@ -179,7 +172,7 @@ int vcprintf(const char *fmt, va_list argp) {
                         conio_sprintfbuf[4]='\0';
                         if (!zero) {
                             // remove leading zeros
-                            while (conio_sprintfbuf=='0') {
+                            while (conio_sprintfbuf[0]=='0') {
                                 // my memcpy is safe in this direction only...
                                 memcpy(&conio_sprintfbuf[0], &conio_sprintfbuf[1], 4);  // includes NUL
                             }
@@ -217,7 +210,7 @@ int vcprintf(const char *fmt, va_list argp) {
                         conio_sprintfbuf[6]='\0';
                         if (!zero) {
                             // remove leading zeros
-                            while (conio_sprintfbuf=='0') {
+                            while (conio_sprintfbuf[0]=='0') {
                                 // my memcpy is safe in this direction only...
                                 memcpy(&conio_sprintfbuf[0], &conio_sprintfbuf[1], 6);  // includes NUL
                             }
@@ -240,6 +233,11 @@ int vcprintf(const char *fmt, va_list argp) {
                     //case 'e':   // exp float (no support)
                     //case 'f':   // float (no support)
 
+                    case '\0':
+                        // error - end of string
+                        --fmt;
+                        break;
+
                     default:
                         cputc(*fmt);
                         ++cnt;
@@ -248,6 +246,7 @@ int vcprintf(const char *fmt, va_list argp) {
                 }
                 ++fmt;
             }
+            --fmt;  // make up for the extra increment
         }
         ++fmt;
     }

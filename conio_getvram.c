@@ -9,7 +9,7 @@ unsigned int conio_getvram() {
     } else if (nTextEnd==1919) {
         return VDP_SCREEN_TEXT80(conio_y,conio_x)+gImage;
     } else {
-        return VDP_SCREEN_POS(conio_y,conio_x)+gImage);
+        return VDP_SCREEN_POS(conio_y,conio_x)+gImage;
     }
 }
 

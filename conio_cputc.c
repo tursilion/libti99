@@ -2,7 +2,11 @@
 
 void inc_row() {
     if (conio_y >= 23) {
+#ifdef USE_SLOW_SCROLL
         scrn_scroll();
+#else
+        fast_scrn_scroll();
+#endif
         conio_y=23;
     } else {
         ++conio_y;
