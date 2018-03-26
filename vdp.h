@@ -183,6 +183,17 @@ int set_text80_raw();
 // this version enables the screen and sets the KSCAN copy for you
 void set_text80();
 
+#define ENABLE_F18A_ECM
+// This will add some overhead to every vdp_char call, so enable only if you need it.
+
+#ifdef ENABLE_F18A_ECM
+// set_text80_ecm - sets up 80 column text mode - 80x24. with Enhanced Color Mode (F18A only!)
+// Inputs: none
+// this version enables the screen and sets the KSCAN copy for you
+// Use bgcolor and textcolor functions from conio to change colors.
+void set_text80_ecm();
+#endif
+
 // set_multicolor - sets up multicolor mode - 64x48, 256 chars, color, sprites
 // Inputs: pass in VDP_SPR_xxx for the sprite mode you want
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
