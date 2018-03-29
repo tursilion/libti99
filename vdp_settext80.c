@@ -23,20 +23,20 @@ void set_text80() {
 #ifdef ENABLE_F18A
 void set_text80_color(void)
 {
+    // unlock the F18A (should be done before setting the mode)
+    VDP_SET_REGISTER(0x39, 0x1c);  // Write once
+    VDP_SET_REGISTER(0x39, 0x1c);  // Write twice, unlock
+
     int x = set_text80_raw();
     VDP_SET_REGISTER(VDP_REG_MODE1, x);
     VDP_REG1_KSCAN_MIRROR = x;
-    
+
     VDP_SET_REGISTER(VDP_REG_CT, 0x20);		gColor = 0x800;
     // sprites are active when F18A is unlocked
     VDP_SET_REGISTER(VDP_REG_SAL, 0x1800/0x80); gSprite = 0x1800;
-    
+
     extern unsigned int conio_scrnCol; // conio_bgcolor.c
     vdpmemset(gColor, conio_scrnCol, nTextEnd+1);	// clear the color table
-
-    // unlock the F18A
-    VDP_SET_REGISTER(0x39, 0x1c);  // Write once
-    VDP_SET_REGISTER(0x39, 0x1c);  // Write twice, unlock
 
     VDP_SET_REGISTER(0x32, 0x02);  // set Position-based tile attributes
 }
