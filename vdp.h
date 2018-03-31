@@ -194,6 +194,18 @@ void set_text80();
 void set_text80_color();
 #endif
 
+#define ENABLE_TEXT64
+// This will add some overhead to every vdp_char call, so enable only if you need it.
+
+#ifdef ENABLE_TEXT64
+// set_text64_color - sets up simulated 64-column text mode in bitmap mode - 64x24
+// Inputs: none
+// this version enables the screen and sets the KSCAN copy for you
+// Use bgcolor and textcolor functions from conio to change colors.
+void set_text64_color();
+#endif
+
+
 // set_multicolor - sets up multicolor mode - 64x48, 256 chars, color, sprites
 // Inputs: pass in VDP_SPR_xxx for the sprite mode you want
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())

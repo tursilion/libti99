@@ -97,6 +97,7 @@ OBJECT_LIST=\
   vdp_setmode.o		\
   vdp_setmulticolor.o	\
   vdp_settext.o		\
+  vdp_settext64.o		\
   vdp_settext80.o		\
   vdp_sprite.o		\
   vdp_textdefs.o	\
