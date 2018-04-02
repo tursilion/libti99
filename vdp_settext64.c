@@ -18,10 +18,13 @@ int set_text64_raw(void) {
 	nTextPos = nTextRow;
 
 	int i;
+        VDP_SET_ADDRESS_WRITE(gImage);
 	for (i = 0; i < 32*24; i++) {
-            VDP_SET_ADDRESS_WRITE(gImage + i);
-            VDPWD=i;
+            VDPWD = i;
 	}
+	vdpmemset(gPattern, 0, 32*24*8);
+        extern unsigned int conio_scrnCol; // conio_bgcolor.c
+	vdpmemset(gColor, conio_scrnCol, 32*24*8);
 
 
 	return unblank;

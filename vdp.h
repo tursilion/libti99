@@ -203,6 +203,10 @@ void set_text80_color();
 // this version enables the screen and sets the KSCAN copy for you
 // Use bgcolor and textcolor functions from conio to change colors.
 void set_text64_color();
+
+// get a screen offset for 64x24 graphics mode
+inline int VDP_SCREEN_TEXT64(unsigned int r, unsigned int c)			{	return (((r)<<6)+(c));						}
+
 #endif
 
 
