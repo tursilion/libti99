@@ -13,6 +13,11 @@ int set_text80_raw() {
 	nTextRow = 80 * 23;
 	nTextEnd = (80 * 24) - 1;
 	nTextPos = nTextRow;
+
+#if defined(ENABLE_F18A) || defined(ENABLE_TEXT64)
+        vdpchar = vdpchar_default;
+#endif
+
 	return unblank;
 }
 
@@ -26,7 +31,8 @@ void set_text80() {
 
 #ifdef ENABLE_F18A
 
-void gpu_scroll(void)
+
+static void gpu_scroll(void)
 {
      __asm__(
 // copy code starting at loop0 to VDP address >4000
@@ -71,6 +77,14 @@ void gpu_scroll(void)
      );
 }
 
+extern unsigned int conio_scrnCol; // conio_bgcolor.c
+
+static void vdpchar80(int pAddr, int ch) {
+    VDP_SET_ADDRESS_WRITE(pAddr);
+    VDPWD=ch;
+    VDP_SET_ADDRESS_WRITE(pAddr-gImage+gColor);
+    VDPWD=conio_scrnCol;
+}
 
 void set_text80_color(void)
 {
@@ -86,7 +100,6 @@ void set_text80_color(void)
     // sprites are active when F18A is unlocked
     VDP_SET_REGISTER(VDP_REG_SAL, 0x1800/0x80); gSprite = 0x1800; vdpchar(gSprite, 0xd0);
 
-    extern unsigned int conio_scrnCol; // conio_bgcolor.c
     vdpmemset(gColor, conio_scrnCol, nTextEnd+1);	// clear the color table
 
     VDP_SET_REGISTER(0x32, 0x02);  // set Position-based tile attributes
@@ -96,5 +109,7 @@ void set_text80_color(void)
     VDP_SET_REGISTER(0x36, 0x3f);
     VDP_SET_REGISTER(0x37, 0x00);
 
+    vdpchar = vdpchar80;
 }
+
 #endif
