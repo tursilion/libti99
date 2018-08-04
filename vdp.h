@@ -339,15 +339,15 @@ void bm_clearscreen();
 // bm_setpixel - turn a pixel on
 // Inputs: x - 0-255 - horizontal location
 //         y - 0-192 - vertial location
-void bm_setpixel(int x, int y);
+void bm_setpixel(unsigned int x, unsigned int y);
 
 // bm_clearpixel - turn a pixel off
 // Inputs: x - 0-255 - horizontal location
 //         y - 0-192 - vertial location
-void bm_clearpixel(int x, int y);
+void bm_clearpixel(unsigned int x, unsigned int y);
 
 // bm_drawline - plot a line between two points
-void bm_drawline(int x1, int y1, int x2, int y2);
+void bm_drawline(int x0, int y0, int x1, int y1);
 
 // bm_consolefont - loads console font to vdp, then copies it up into ram for
 // later use in bitmap mode. Use this before switching to bitmap mode if

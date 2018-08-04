@@ -70,6 +70,13 @@ OBJECT_LIST=\
   str_uint2str.o  \
   sys_exit.o      \
   sys_halt.o			\
+  vdp_bmclearpixel.o \
+  vdp_bmclearscreen.o \
+  vdp_bmcolor.o \
+  vdp_bmconsolefont.o \
+  vdp_bmdrawline.o \
+  vdp_bmputs.o \
+  vdp_bmsetpixel.o \
   vdp_char.o		\
   vdp_charset.o		\
   vdp_charsetlc.o	\
