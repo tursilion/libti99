@@ -89,7 +89,7 @@ void testBitmapMode() {
 
     bm_clearscreen();
 
-    bm_puts(0,0, "Line test...");
+    bm_puts(0,0, "Pixel test...");
 
     // set every pixel, each row a new color    
     for(int y=20; y<40; y++) {
@@ -109,6 +109,7 @@ void testBitmapMode() {
     bm_setbackground(COLOR_BLACK);
     bm_setforeground(COLOR_GRAY);
     bm_clearscreen();
+    bm_puts(0,0, "Drawline test...");
     int x = 0; 
     int y = 0;
     while(y < 192) {
@@ -117,7 +118,7 @@ void testBitmapMode() {
         x += 6;
     }
 
-    bm_puts(0, 23, "Done...");
+    bm_puts(0, 23, "Press any key...");
     while(!kbhit());
     set_text();
     cgetc();
@@ -233,6 +234,7 @@ int main() {
     }
     cgetc();
     
+    printf("** DONE **\n");
 	halt();
 
 	return 0;
