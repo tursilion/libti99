@@ -326,6 +326,63 @@ void charsetlc();
 // only provided 6 bytes).
 void gplvdp(int vect, int adr, int cnt);
 
+// bm_setforeground - specify foreground color to use when drawing
+void bm_setforeground(int c);
+
+// bm_setbackground - specify background color to use when drawing
+void bm_setbackground(int c);
+
+// bm_clearscreen - clear the screen and sets all regions to the
+//                  current colors
+void bm_clearscreen();
+
+// bm_setpixel - turn a pixel on
+// Inputs: x - 0-255 - horizontal location
+//         y - 0-192 - vertial location
+void bm_setpixel(unsigned int x, unsigned int y);
+
+// bm_clearpixel - turn a pixel off
+// Inputs: x - 0-255 - horizontal location
+//         y - 0-192 - vertial location
+void bm_clearpixel(unsigned int x, unsigned int y);
+
+// bm_drawline - plot a line between two points
+void bm_drawline(int x0, int y0, int x1, int y1);
+
+// bm_consolefont - loads console font to vdp, then copies it up into ram for
+// later use in bitmap mode. Use this before switching to bitmap mode if
+// you want a TI font.
+void bm_consolefont();
+
+// bm_putc - draw a character at a tile location.
+// Inputs : c - character column  0:31
+//          r - character row  0:23
+void bm_putc(int c, int r, unsigned char alphanum);
+
+// bm_puts - draw a 0 terminated string at a tile location.
+//    this provides no scrolling, or bounds limiting.
+// Inputs : c - character column  0:31
+//          r - character row  0:23
+void bm_puts(int c, int r, unsigned char* str);
+
+// bm_placetile - draw a 8x8 pattern at the given tile.
+// Inputs : c - character column  0:31
+//          r - character row  0:23
+void bm_placetile(int c, int r, const unsigned char* pattern);
+
+#define BM_FONT_SIZE (8*(127-32))
+
+// globals holding pen color and background for bitmap drawing
+// 0xF0 nibble is foreground, 0x0F nibble is background.
+// or use bm_setforeground and bm_setbackground
+extern unsigned char gBitmapColor;
+
+// address of bitmap mode font pattern table in cpu memory. 
+// This can be intialized by calling bm_consolefont(), or
+// by setting it to your own characterset patterns spanning
+// characters ' ' to '~'
+extern unsigned char* gBmFont;
+
 // global pointers for all to enjoy - make sure the screen setup code updates them!
 // assumptions here are for E/A environment, they may not be accurate and your
 // program should NOT trust them until after one of the mode set functions is called.

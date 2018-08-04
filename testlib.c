@@ -1,6 +1,7 @@
 #include "system.h"
 #include "puff.h"
 #include "conio.h"
+#include "math.h"
 
 unsigned char helloworldraw[] = {
   0xF3,0x48,0xCD,0xC9 ,0xC9 ,0x57 ,0x70 ,0xF6 ,0xF7 
@@ -71,9 +72,67 @@ void testprintf() {
     cgetc();
 }
 
+void testBitmapMode() {
+    bm_consolefont();
+    set_bitmap(0);
+
+    bm_setbackground(COLOR_CYAN);
+    bm_setforeground(COLOR_BLACK);
+    bm_clearscreen();
+
+    int r = 0;
+    for(int c=0; c<23; c+=1) {
+        bm_puts(c, r++, "Hello Bitmaps!");
+        bm_setforeground((r % 14)+2);
+    }
+    bm_setforeground(0);
+
+    bm_clearscreen();
+
+    bm_puts(0,0, "Pixel test...");
+
+    // set every pixel, each row a new color    
+    for(int y=20; y<40; y++) {
+        for(int x=0; x<256; x++) {
+            bm_setpixel(x, y);
+        }
+        bm_setforeground(y%16);
+    }
+    // clear every pixel, one at a time
+    bm_setforeground(COLOR_BLACK);
+    for(int y=20; y<40; y++) {
+        for(int x=0; x<256; x++) {
+            bm_clearpixel(x, y);
+        }
+    }
+    // draw a web
+    bm_setbackground(COLOR_BLACK);
+    bm_setforeground(COLOR_GRAY);
+    bm_clearscreen();
+    bm_puts(0,0, "Drawline test...");
+    int x = 0; 
+    int y = 0;
+    while(y < 192) {
+        bm_drawline(0, y, x, 191);
+        y += 6;
+        x += 6;
+    }
+
+    bm_puts(0, 23, "Press any key...");
+    while(!kbhit());
+    set_text();
+    cgetc();
+}
+
 int main() {
+    testBitmapMode();
+
 	set_text();
 	charsetlc();
+
+    if(abs(75)==75 && abs(-32)==32) {
+        putstring("abs function passed.");
+    }
 
     putstring("hello world!\n");
 	putstring("\nsizeof(int):  ");
@@ -174,7 +233,7 @@ int main() {
         while (kbhit()) cgetc();
     }
     cgetc();
-
+    
     printf("** DONE **\n");
 	halt();
 
