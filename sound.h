@@ -1,5 +1,8 @@
 // Helpers for direct and console interrupt sound processing
 
+#ifndef SOUND_H
+#define SOUND_H
+
 //*********************
 // direct sound chip access
 //*********************
@@ -47,3 +50,5 @@ inline void START_SOUND()					{	SOUND_CNT = 1;					}
 
 // mute all channels
 inline void MUTE_SOUND()					{ SOUND=TONE1_VOL|0x0f; SOUND=TONE2_VOL|0x0f; SOUND=TONE3_VOL|0x0f; SOUND=NOISE_VOL|0x0f; }
+
+#endif /* SOUND_H */

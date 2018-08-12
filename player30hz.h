@@ -9,6 +9,9 @@
 // memory and CPU but is otherwise the same.
 //*********************
 
+#ifndef PLAYER30HZ_H
+#define PLAYER30HZ_H
+
 //*********************
 // Player Data
 //*********************
@@ -43,3 +46,5 @@ void stplay30();
 // inputs - pSong - pointer to song data
 // returns - count (which is just the table pointers subtracted and divided)
 unsigned int stcount(const void *pSong);
+
+#endif /* PLAYER30HZ_H */

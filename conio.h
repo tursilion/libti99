@@ -6,6 +6,9 @@
 // this code maintains its own cursor position and is not compatible with the 
 // vdp_put functions directly.
 
+#ifndef CONIO_H
+#define CONIO_H
+
 #include "vdp.h"
 #include <stdarg.h>
 
@@ -96,3 +99,5 @@ inline int wherex() { return conio_x; }
 
 // return the y position
 inline int wherey() { return conio_y; }
+
+#endif /* CONIO_H */

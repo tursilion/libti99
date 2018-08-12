@@ -1,3 +1,6 @@
+#ifndef FILES_H
+#define FILES_H
+
 // DSR interface code for the TI-99/4A by Tursi
 // You can copy this file and use it at will ;)
 
@@ -89,3 +92,5 @@ unsigned char dsrlnk(struct PAB *pab, unsigned int vdp);
 // Inputs: pointer to PAB in VDP
 // Note: no return code. Read it from the PAB yourself. :)
 void dsrlnkraw(unsigned int vdppab);
+
+#endif /* FILES_H */
