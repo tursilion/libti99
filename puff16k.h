@@ -21,6 +21,8 @@
   Mark Adler    madler@alumni.caltech.edu
  */
 
+#ifndef PUFF16K_H
+#define PUFF16K_H
 
 /*
  * See puff.c for purpose and usage.
@@ -38,3 +40,5 @@ int puff16k(unsigned char *dest,          /* pointer to destination pointer */
          unsigned int *destlen,        /* amount of output space */
          const unsigned char *source, /* pointer to source data pointer */
          unsigned int *sourcelen);     /* amount of input available */
+
+#endif /* PUFF16K_H */

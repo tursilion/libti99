@@ -1,6 +1,9 @@
 // String code for the TI-99/4A by Tursi
 // You can copy this file and use it at will ;)
 
+#ifndef STRING_H
+#define STRING_H
+
 // strlen - returns the length of a zero terminated string
 int strlen(const char *s);
 
@@ -26,3 +29,5 @@ char *int2str(int x);
 // Displays a solid cursor. The only edit key supported is Fctn-S. Stops
 // at maxlen, returned string is zero-terminated. Needs KSCAN, VDP, etc.
 void gets(char *buf, int maxlen);
+
+#endif /* STRING_H */

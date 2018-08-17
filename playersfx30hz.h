@@ -8,6 +8,9 @@
 // If you only want music, use player.h which will use less memory and CPU time.
 //*********************
 
+#ifndef PLAYERSFX30HZ_H
+#define PLAYERSFX30HZ_H
+
 //*********************
 // Player Data
 //*********************
@@ -56,3 +59,5 @@ void stplaysfx30();
 // inputs - pSong - pointer to song data
 // returns - count (which is just the table pointers subtracted and divided)
 unsigned int stcount(const void *pSong);
+
+#endif /* PLAYERSFX30HZ_H */

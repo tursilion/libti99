@@ -3,6 +3,10 @@
 // This code and library released into the Public Domain
 // You can copy this file and use it at will ;)
 
+#ifndef VDP_H
+#define VDP_H
+
+
 //*********************
 // VDP access ports
 //*********************
@@ -400,3 +404,5 @@ extern unsigned char gSaveIntCnt;	// console interrupt count byte
 
 // 512 byte lookup table for converting a byte to two ASCII hex characters
 extern const unsigned int byte2hex[256];
+
+#endif /* VDP_H */

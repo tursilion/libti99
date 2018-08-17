@@ -4,6 +4,9 @@
 // KSCAN related addresses
 //*********************
 
+#ifndef KSCAN_H
+#define KSCAN_H
+
 // Address to set the scan mode (see KSCAN_MODE_xxx defines)
 #define KSCAN_MODE	*((volatile unsigned char*)0x8374)
 
@@ -60,3 +63,4 @@ void kscanfast(int mode);
 // returns data in KSCAN_JOYY and KSCAN_JOYX
 void joystfast(int unit);
 
+#endif /* KSCAN_H */
