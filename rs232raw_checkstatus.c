@@ -12,7 +12,7 @@
 // 0x20 = RTS (inverted)
 // 0x40 = DSR (inverted)
 // 0x80 = CTS (inverted)
-int rs232raw_geterrs(int rawCRU) {
+int rs232raw_checkstatus(int rawCRU) {
     int ret;
 
     __asm__ (
