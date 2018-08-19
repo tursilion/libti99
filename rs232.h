@@ -56,7 +56,7 @@
 #define RS232_UART_INTACT	31		// an interrupt has occurred (reset bit 31: output 11-14=1, 17-20=0, input 23-23=1, 13,21,25=0)
 
 // alternate names for write mode - to write a register set the bit first, then LDCR into bits 0-??
-#define RS232_UART_WRITE	0		// 0 is also used to write a selected register (11 bits here) Registers auto-increment!
+#define RS232_UART_WRITE	0		// 0 is also used to write a selected register (11 bits here) Registers auto-decrement!
 #define RS232_UART_EMITRATE	11		// write 1 to load emission rate register with bits 0-10 (emit and recv may be used together)
 #define RS232_UART_RECVRATE	12		// write 1 to load reception rate register with bits 0-10
 #define RS232_UART_INTERVAL	13		// write 1 to load interval register with bits 0-7 (countdown timer)
