@@ -1,9 +1,9 @@
 # Paths to TMS9900 compilation tools 
 # ( Set in environment to override paths )
-TMS9900_DIR?=/home/tursi/gcc9900/bin
-ELF2EA5_DIR?=/home/tursi/gcc9900/bin
-EA5_SPLIT_DIR?=/home/tursi/gcc9900/bin
-CLASSIC99_DSK1?=/mnt/c/classic99/DSK1/
+TMS9900_DIR?=/home/tursilion/gcc9900/bin
+ELF2EA5_DIR?=/home/tursilion/gcc9900/bin
+EA5_SPLIT_DIR?=/home/tursilion/gcc9900/bin
+CLASSIC99_DSK1?=/mnt/d/classic99/DSK1/
 
 # Full paths to the executables used
 GAS=$(TMS9900_DIR)/tms9900-as
@@ -56,10 +56,24 @@ OBJECT_LIST=\
   player.o			\
   puff.o        \
   puff16k.o     \
-  tiplayer.o		\
-  tiplayer30hz.o	\
-  tiplayersfx.o		\
-  tiplayersfx30hz.o	\
+  rs232_geterrs.o   \
+  rs232_poll.o  \
+  rs232_readbyte.o \
+  rs232_readPIO.o \
+  rs232_setbps.o \
+  rs232_setcontrol.o \
+  rs232_writebyte.o \
+  rs232_writePIO.o \
+  rs232raw_activateCard.o \
+  rs232raw_checkstatus.o \
+  rs232raw_deactivateCard.o \
+  rs232raw_geterrs.o \
+  rs232raw_getuart.o \
+  rs232raw_poll.o \
+  rs232raw_readbyte.o \
+  rs232raw_setPIOinput.o \
+  rs232raw_setPIOoutput.o \
+  rs232raw_writebyte.o \
   stcount.o			\
   str_atoi.o      \
   str_gets.o      \
@@ -70,6 +84,10 @@ OBJECT_LIST=\
   str_uint2str.o  \
   sys_exit.o      \
   sys_halt.o			\
+  tiplayer.o		\
+  tiplayer30hz.o	\
+  tiplayersfx.o		\
+  tiplayersfx30hz.o	\
   vdp_bmclearpixel.o \
   vdp_bmclearscreen.o \
   vdp_bmcolor.o \
