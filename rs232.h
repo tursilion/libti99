@@ -4,6 +4,9 @@
 // Port for PIO is defined too. Note this bypasses the DSR - just use the file code for DSR access
 // Note there's no flow control in this lib (RTS/CTS/etc)
 
+// TODO: do we actually need to map the card in to talk to the UARTs? Flipside never did...
+// But I had a Corcomp card, so I'm not sure if it was different...
+
 #ifndef RS232_H
 #define RS232_H
 

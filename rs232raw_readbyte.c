@@ -9,7 +9,13 @@ int rs232raw_readbyte(int rawCRU) {
     int ret;
 
     __asm__ (
-        "MOV %1,R12\n\tCLR %0\n\tSTCR %0,8\n\tSWPB %0" : "=rm" (ret) : "r" (rawCRU) : "r12" 
+        "  mov %1,r12\n"	// get rawCRU
+        "  clr %0\n"		// clear rx register
+        "  stcr %0,8\n"		// get byte
+        "  swpb %0\n" 		// make LSB
+        "  sbz 18\n"		// reset rx flag
+        "  swpb %0\n" 		// fix the reg in case gcc wants it
+        : "=rm" (ret) : "r" (rawCRU) : "r12" 
     );
 
     return ret;

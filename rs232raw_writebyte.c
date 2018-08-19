@@ -7,6 +7,12 @@
 // this does manipulate RTS/DCD since everyone does ;)
 void rs232raw_writebyte(int rawCRU, int ch) {
     __asm__ (
-        "MOV %0,R12\n\tSBO 16\n\tSWPB %1\n\tLDCR %1,8\n\tSBZ 16" : : "r" (rawCRU), "r" (ch) : "r12"
+        "  mov %0,r12\n"	// get rawCRU
+        "  sbo 16\n"		// set RTS low (this is what the card and FlipSide did...? maybe enables the write?)
+        "  swpb %1\n"		// get the value into the MSB
+        "  ldcr %1,8\n"		// write the byte
+        "  sbz 16\n"		// set RTS high (will happen after transmission)
+        "  swpb %1\n"		// fix the reg in case gcc wants it
+        : : "r" (rawCRU), "r" (ch) : "r12"
     );
 }

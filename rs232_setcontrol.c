@@ -8,7 +8,20 @@ void rs232_setcontrol(int card, int uart, int control) {
     int rawCRU = rs232raw_getuart(card, uart);
 
     __asm__ (
-        "MOV %0,R12\n\tSBO 14\n\tLDCR %1,8" : : "r" (rawCRU), "r" (control) : "r12" 
+        "  mov %0,r12\n"	// get the rawcru address
+        "  sbo 31\n"		// reset
+        "  sbz 21\n"		// rts/cts interrupts off
+        "  sbz 20\n"		// timer ints off
+        "  sbz 19\n"		// tx int off
+        "  sbz 18\n"		// rx int off
+        "  sbz 17\n"		// clear abort/BREAK
+        "  sbz 15\n"		// clear loopback test mode
+        "  sbo 14\n"		// request to write control word
+        "  swpb %1\n"		// get the byte into the msb
+        "  ldcr %1,8\n"		// write it
+        "  swpb %1\n"		// fix the reg in case gcc wants it
+        
+        : : "r"(rawCRU), "r"(control) : "r12" 
     );
 
     rs232raw_deactivateCard(card);

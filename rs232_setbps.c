@@ -8,7 +8,11 @@ void rs232_setbps(int card, int uart, int bps) {
     int rawCRU = rs232raw_getuart(card, uart);
 
     __asm__ (
-        "MOV %0,R12\n\tSBO 11\n\tSBO 12\n\tLDCR %1,11" : : "r" (rawCRU), "r" (bps) : "r12" 
+        "  mov %0,r12\n"	// get the rawcru address
+        "  sbo 12\n"		// request write to recv rate
+        "  ldcr %1,11\n"	// load recv rate (auto-decrements to send rate)
+        "  ldcr %1,11\n"	// load send rate (Nouspikel says you can do both at once, but safer this way)
+        : : "r" (rawCRU), "r" (bps) : "r12" 
     );
 
     rs232raw_deactivateCard(card);
