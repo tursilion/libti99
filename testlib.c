@@ -68,6 +68,11 @@ void testprintf() {
     screensize(&x, &y);
     cprintf("Screen is %dx%d, Cursor at %d,%d\n", x, y, wherex(), wherey());
 
+    for(int i=0;i<9;i++) {
+      cprintf("0123456789");
+    }
+    cprintf("\n");
+
     cputs("Press any key press any key Press any key press any key Press any key press any key...");
     cgetc();
 }
