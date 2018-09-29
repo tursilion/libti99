@@ -17,7 +17,7 @@ void cputc(int ch) {
     if (ch >= ' ') {
         vdpchar(conio_getvram(), ch);
         ++conio_x;
-        if (conio_x >= nTextEnd-nTextRow) {
+        if (conio_x > nTextEnd-nTextRow) {
             conio_x=0;
             inc_row();
         }
