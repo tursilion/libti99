@@ -25,6 +25,10 @@ char *uint2str(unsigned int x);
 // Not thread safe, don't use from interrupt handlers.
 char *int2str(int x);
 
+// returns a pointer to a static hex string, a number converted as unsigned
+// Not thread safe, don't use from interrupt handlers.
+char* uint2hex(unsigned int x);
+
 // reads a string from the keyboard - pulls in KSCAN. Uses keyboard mode 5.
 // Displays a solid cursor. The only edit key supported is Fctn-S. Stops
 // at maxlen, returned string is zero-terminated. Needs KSCAN, VDP, etc.

@@ -81,6 +81,7 @@ OBJECT_LIST=\
   str_memcpy.o    \
   str_strcpy.o    \
   str_strlen.o		\
+  str_uint2hex.o  \
   str_uint2str.o  \
   sys_exit.o      \
   sys_halt.o			\
