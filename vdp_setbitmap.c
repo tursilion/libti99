@@ -2,6 +2,9 @@
 
 int set_bitmap_raw(int sprite_mode) {
 	// note: no masking, full size bitmap mode
+#if defined(ENABLE_F18A) || defined(ENABLE_TEXT64)
+        vdpchar = vdpchar_default;
+#endif
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_INT | sprite_mode;
 	VDP_SET_REGISTER(VDP_REG_MODE0, VDP_MODE0_BITMAP);
 	VDP_SET_REGISTER(VDP_REG_MODE1, VDP_MODE1_16K);		// no need to OR in the sprite mode for now

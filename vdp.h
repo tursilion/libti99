@@ -187,6 +187,33 @@ int set_text80_raw();
 // this version enables the screen and sets the KSCAN copy for you
 void set_text80();
 
+#define ENABLE_F18A
+// This will add some overhead to every vdpchar() call, so enable only if you need it.
+
+#ifdef ENABLE_F18A
+// set_text80_color - sets up 80 column text mode - 80x24. with Position Attributes (F18A only!)
+// Inputs: none
+// this version enables the screen and sets the KSCAN copy for you
+// Use bgcolor and textcolor functions from conio to change colors.
+void set_text80_color();
+#endif
+
+#define ENABLE_TEXT64
+// This will add some overhead to every vdpchar() call, so enable only if you need it.
+
+#ifdef ENABLE_TEXT64
+// set_text64_color - sets up simulated 64-column text mode in bitmap mode - 64x24
+// Inputs: none
+// this version enables the screen and sets the KSCAN copy for you
+// Use bgcolor and textcolor functions from conio to change colors.
+void set_text64_color();
+
+// get a screen offset for 64x24 graphics mode
+inline int VDP_SCREEN_TEXT64(unsigned int r, unsigned int c)			{	return (((r)<<6)+(c));						}
+
+#endif
+
+
 // set_multicolor - sets up multicolor mode - 64x48, 256 chars, color, sprites
 // Inputs: pass in VDP_SPR_xxx for the sprite mode you want
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
@@ -226,9 +253,18 @@ void vdpmemread(int pAddr, unsigned char *pDest, int cnt);
 // incrementing tables
 void vdpwriteinc(int pAddr, int nStart, int cnt);
 
+
 // vdpchar - write a character to VDP memory (NOT to be confused with basic's CALL CHAR)
 // Inputs: VDP address to write, character to be written
+#if defined(ENABLE_F18A) || defined(ENABLE_TEXT64)
+// use indirect function call for each mode
+extern void (*vdpchar)(int pAddr, int ch);
+void vdpchar_default(int pAddr, int ch);
+
+#else
 void vdpchar(int pAddr, int ch);
+
+#endif
 
 // vdpreadchar - read a character from VDP memory
 // Inputs: VDP address to read

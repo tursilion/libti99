@@ -10,6 +10,9 @@ int set_text_raw() {
 	nTextRow = 920;
 	nTextEnd = 959;
 	nTextPos = nTextRow;
+#if defined(ENABLE_F18A) || defined(ENABLE_TEXT64)
+        vdpchar = vdpchar_default;
+#endif
 	return unblank;
 }
 
