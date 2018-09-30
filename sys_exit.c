@@ -1,4 +1,4 @@
 // exit reboots the system
-void exit(int x) {
+void exit() {
   __asm__("BLWP @>0000");
 }
