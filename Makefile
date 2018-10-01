@@ -89,6 +89,7 @@ OBJECT_LIST=\
   tiplayer30hz.o	\
   tiplayersfx.o		\
   tiplayersfx30hz.o	\
+  vdp_bigbuf.o          \
   vdp_bmclearpixel.o \
   vdp_bmclearscreen.o \
   vdp_bmcolor.o \
@@ -118,6 +119,7 @@ OBJECT_LIST=\
   vdp_screenchar.o	\
   vdp_scrnscroll.o	\
   vdp_fastscrnscroll.o	\
+  vdp_fastscrnscroll_default.o	\
   vdp_setbitmap.o	\
   vdp_setgraphics.o	\
   vdp_setmode.o		\
@@ -125,6 +127,7 @@ OBJECT_LIST=\
   vdp_settext.o		\
   vdp_settext64.o		\
   vdp_settext80.o		\
+  vdp_settext80color.o		\
   vdp_sprite.o		\
   vdp_textdefs.o	\
   vdp_vchar.o		\

@@ -1,7 +1,8 @@
 #include "vdp.h"
 
-#ifdef ENABLE_TEXT64
 int text64_scroll = 0;
+
+void fast_scrn_scroll64();
 
 static void vdpchar64(int pAddr, int ch);
 
@@ -29,6 +30,7 @@ int set_text64_raw(void) {
 	vdpmemset(gColor, conio_scrnCol, 32*24*8);
 
         vdpchar = vdpchar64;
+        fast_scrn_scroll = fast_scrn_scroll64;
 
 	return unblank;
 }
@@ -39,7 +41,6 @@ void set_text64_color(void) {
     VDP_REG1_KSCAN_MIRROR = x;
 }
 
-#ifdef ENABLE_TEXT64
 static const unsigned int font3x5[] = {
 0x0000,0x0000,0x0000,0x0000, 0x44AA,0xAAAA,0xAAAA,0x4400, 0x44EE,0xEEEE,0xEEEE,0x4400, 0x0000,0xAAEE,0xEE44,0x0000,
 0x0000,0x44EE,0xEE44,0x0000, 0x0000,0x44EE,0xAA44,0x4400, 0x0000,0x44EE,0xEE44,0xEE00, 0x0000,0x0044,0xEE44,0x0000,
@@ -132,7 +133,58 @@ static void vdpchar64(int pAddr, int ch)
     vdpmemset(offset - gPattern + gColor, conio_scrnCol, 8);
 }
 
-#endif
+extern unsigned char vdp_bigbuf[256];
+
+void fast_scrn_scroll64() {
+    // similar to the slow_scrn_scroll, but uses a larger fixed
+    // buffer for far more speed
+    const int line = nTextEnd - nTextRow + 1;
+
+    extern unsigned int conio_scrnCol; // conio_bgcolor.c
+    extern int text64_scroll;
+    unsigned char *buf = (unsigned char *)0x8320;
+    int i, src, dst, ch;
+
+    src = (8*32 + text64_scroll) * 8; // source = first middle
+    dst = (0*32 + text64_scroll) * 8; // dest = last top
+
+    text64_scroll = (text64_scroll + 0x20) & 0x00e0;
+    ch = text64_scroll;
+
+    VDP_SET_ADDRESS_WRITE(gImage);
+    for (i = 0; i < 7*32; i++) {
+	VDPWD = ch++;
+    }
+
+    // copy 32 patterns from middle to top
+    vdpmemread(gPattern + src, vdp_bigbuf, 256);
+    vdpmemcpy(gPattern + dst, vdp_bigbuf, 256);
+    vdpmemread(gColor + src, vdp_bigbuf, 256);
+    vdpmemcpy(gColor + dst, vdp_bigbuf, 256);
+
+    VDP_SET_ADDRESS_WRITE(gImage + 7*32);
+    for (i = 0; i < 8*32; i++) {
+	VDPWD = ch++;
+    }
+
+    // copy 32 patterns from bottom to middle
+    src += 8*32*8;
+    dst += 8*32*8;
+    vdpmemread(gPattern + src, vdp_bigbuf, 256);
+    vdpmemcpy(gPattern + dst, vdp_bigbuf, 256);
+    vdpmemread(gColor + src, vdp_bigbuf, 256);
+    vdpmemcpy(gColor + dst, vdp_bigbuf, 256);
+
+    VDP_SET_ADDRESS_WRITE(gImage + 15*32);
+    for (i = 0; i < 9*32; i++) {
+	VDPWD = ch++;
+    }
+
+    // clear the last line
+    dst += 8*32*8;
+    vdpmemset(gPattern + dst, 0, 256);
+    vdpmemset(gColor + dst, conio_scrnCol, 256);
 
 
-#endif
+    return;
+}
