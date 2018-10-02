@@ -194,6 +194,10 @@ void set_text80();
 // Inputs: none
 // this version enables the screen and sets the KSCAN copy for you
 // Use bgcolor and textcolor functions from conio to change colors.
+// Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
+// The screen is blanked until you do this write, to allow you time to set it up
+int set_text80_color_raw();
+// this version enables the screen and sets the KSCAN copy for you
 void set_text80_color();
 
 // set_text64_color - sets up simulated 64-column text mode in bitmap mode - 64x24
@@ -425,5 +429,12 @@ extern unsigned char gSaveIntCnt;	// console interrupt count byte
 
 // 512 byte lookup table for converting a byte to two ASCII hex characters
 extern const unsigned int byte2hex[256];
+
+// f18a specific utility
+// enable extended f18a VDP functions
+void unlock_f18a();
+
+// lock f18a into 9918 mode
+void lock_f18a();
 
 #endif /* VDP_H */

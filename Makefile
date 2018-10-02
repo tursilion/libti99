@@ -101,6 +101,7 @@ OBJECT_LIST=\
   vdp_charset.o		\
   vdp_charsetlc.o	\
   vdp_delsprite.o	\
+  vdp_f18a.o		\
   vdp_gchar.o		\
   vdp_gplvdp.o		\
   vdp_hchar.o		\

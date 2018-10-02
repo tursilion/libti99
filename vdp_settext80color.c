@@ -47,14 +47,14 @@ static void gpu_scroll(void)
 
 extern unsigned int conio_scrnCol; // conio_bgcolor.c
 
-static void vdpchar80(int pAddr, int ch) {
+static void vdpchar80color(int pAddr, int ch) {
     VDP_SET_ADDRESS_WRITE(pAddr);
     VDPWD=ch;
     VDP_SET_ADDRESS_WRITE(pAddr-gImage+gColor);
     VDPWD=conio_scrnCol;
 }
 
-void fast_scrn_scroll_80color() {
+static void fast_scrn_scroll_80color() {
     // similar to the slow_scrn_scroll, but uses a larger fixed
     // buffer for far more speed
     const int line = nTextEnd - nTextRow + 1;
@@ -74,20 +74,33 @@ void fast_scrn_scroll_80color() {
 
 void set_text80_color(void)
 {
-    // unlock the F18A (should be done before setting the mode)
-    VDP_SET_REGISTER(0x39, 0x1c);  // Write once
-    VDP_SET_REGISTER(0x39, 0x1c);  // Write twice, unlock
-
-    int x = set_text80_raw();
+    int x = set_text80_color_raw();
     VDP_SET_REGISTER(VDP_REG_MODE1, x);
     VDP_REG1_KSCAN_MIRROR = x;
+}
+
+// requires F18A!!
+int set_text80_color_raw() {
+    // unlock the F18A (should be done before setting the mode)
+    unlock_f18a();
+
+    int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_TEXT | VDP_MODE1_INT;
+    VDP_SET_REGISTER(VDP_REG_MODE0, VDP_MODE0_80COL);
+    VDP_SET_REGISTER(VDP_REG_MODE1, VDP_MODE1_16K | VDP_MODE1_TEXT);
+    VDP_SET_REGISTER(VDP_REG_SIT, 0x00);	gImage = 0x000;
+    VDP_SET_REGISTER(VDP_REG_PDT, 0x02);	gPattern = 0x1000;
+    // no sprites and no color in text mode anyway
+    nTextRow = 80 * 23;
+    nTextEnd = (80 * 24) - 1;
+    nTextPos = nTextRow;
+
+    vdpchar = vdpchar80color;
+    fast_scrn_scroll = fast_scrn_scroll_80color;
 
     VDP_SET_REGISTER(VDP_REG_CT, 0x20);		gColor = 0x800;
     // sprites are active when F18A is unlocked
     VDP_SET_REGISTER(VDP_REG_SAL, 0x1800/0x80); gSprite = 0x1800; vdpchar(gSprite, 0xd0);
-
     vdpmemset(gColor, conio_scrnCol, nTextEnd+1);	// clear the color table
-
     VDP_SET_REGISTER(0x32, 0x02);  // set Position-based tile attributes
 
     // load GPU scroll function
@@ -95,7 +108,7 @@ void set_text80_color(void)
     VDP_SET_REGISTER(0x36, 0x3f);
     VDP_SET_REGISTER(0x37, 0x00);
 
-    vdpchar = vdpchar80;
-    fast_scrn_scroll = fast_scrn_scroll_80color;
+    return unblank;
 }
+
 

@@ -214,6 +214,15 @@ int main() {
     charsetlc();       // different VRAM layout, reload charset
     testprintf();
 
+    set_text64_color(); // uses charset from RAM instead of vdp.
+    testprintf();
+
+    set_text80_color();
+    charsetlc();       // different VRAM layout, reload charset
+    testprintf();
+    lock_f18a();
+    set_graphics(0);   // reset various other vdp state.
+
     set_text();
     charsetlc();       // different VRAM layout, reload charset
     clrscr();

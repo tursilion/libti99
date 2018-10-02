@@ -2,7 +2,7 @@
 
 int text64_scroll = 0;
 
-void fast_scrn_scroll64();
+static void fast_scrn_scroll64();
 
 static void vdpchar64(int pAddr, int ch);
 
