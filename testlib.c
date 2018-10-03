@@ -77,6 +77,17 @@ void testprintf() {
     cgetc();
 }
 
+void testColorText() {
+    cprintf("a splash of ");
+    bgcolor(COLOR_DKRED);
+    textcolor(COLOR_LTBLUE);
+    cprintf("color!");
+    textcolor(COLOR_WHITE);
+    bgcolor(COLOR_DKBLUE);
+    cprintf("\npress any key\n");
+    cgetc();
+}
+
 void testBitmapMode() {
     bm_consolefont();
     set_bitmap(0);
@@ -134,6 +145,8 @@ int main() {
 
 	set_text();
 	charsetlc();
+        textcolor(COLOR_WHITE);
+        bgcolor(COLOR_DKBLUE);
 
     if(abs(75)==75 && abs(-32)==32) {
         putstring("abs function passed.");
@@ -216,10 +229,12 @@ int main() {
 
     set_text64_color(); // uses charset from RAM instead of vdp.
     testprintf();
+    testColorText();
 
     set_text80_color();
     charsetlc();       // different VRAM layout, reload charset
     testprintf();
+    testColorText();
     lock_f18a();
     set_graphics(0);   // reset various other vdp state.
 
