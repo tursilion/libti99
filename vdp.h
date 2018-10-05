@@ -42,6 +42,9 @@ inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+
 // get a screen offset for 80x24 text mode
 inline int VDP_SCREEN_TEXT80(unsigned int r, unsigned int c)	    {	return (((r)<<6)+((r)<<4)+(c));				}
 
+// get a screen offset for 64x24 graphics mode
+inline int VDP_SCREEN_TEXT64(unsigned int r, unsigned int c)			{	return (((r)<<6)+(c));						}
+
 //*********************
 // VDP Console interrupt control
 //*********************
@@ -187,6 +190,24 @@ int set_text80_raw();
 // this version enables the screen and sets the KSCAN copy for you
 void set_text80();
 
+// set_text80_color - sets up 80 column text mode - 80x24. with Position Attributes (F18A only!)
+// Inputs: none
+// this version enables the screen and sets the KSCAN copy for you
+// Use bgcolor and textcolor functions from conio to change colors.
+// Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
+// The screen is blanked until you do this write, to allow you time to set it up
+int set_text80_color_raw();
+// this version enables the screen and sets the KSCAN copy for you
+void set_text80_color();
+
+// set_text64_color - sets up simulated 64-column text mode in bitmap mode - 64x24
+// Inputs: none
+// this version enables the screen and sets the KSCAN copy for you
+// Use bgcolor and textcolor functions from conio to change colors.
+void set_text64_color();
+
+
+
 // set_multicolor - sets up multicolor mode - 64x48, 256 chars, color, sprites
 // Inputs: pass in VDP_SPR_xxx for the sprite mode you want
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
@@ -226,9 +247,13 @@ void vdpmemread(int pAddr, unsigned char *pDest, int cnt);
 // incrementing tables
 void vdpwriteinc(int pAddr, int nStart, int cnt);
 
+
 // vdpchar - write a character to VDP memory (NOT to be confused with basic's CALL CHAR)
 // Inputs: VDP address to write, character to be written
-void vdpchar(int pAddr, int ch);
+// use indirect function call for each mode
+extern void (*vdpchar)(int pAddr, int ch);
+void vdpchar_default(int pAddr, int ch);
+
 
 // vdpreadchar - read a character from VDP memory
 // Inputs: VDP address to read
@@ -284,7 +309,7 @@ void faster_hexprint(unsigned char x);
 // scrn_scroll - scrolls the screen upwards one line - works in 32x24, 40x24 and 80x24 modes
 void scrn_scroll();
 // fast_scrn_scroll- does the same, but uses 256 fixed bytes to do it faster
-void fast_scrn_scroll();
+extern void (*fast_scrn_scroll)();
 
 // hchar - repeat a character horizontally on the screen, similar to CALL HCHAR
 // Inputs: row and column (0-based, not 1-based) to start, character to repeat, number of repetitions (not optional)
@@ -404,5 +429,12 @@ extern unsigned char gSaveIntCnt;	// console interrupt count byte
 
 // 512 byte lookup table for converting a byte to two ASCII hex characters
 extern const unsigned int byte2hex[256];
+
+// f18a specific utility
+// enable extended f18a VDP functions
+void unlock_f18a();
+
+// lock f18a into 9918 mode
+void lock_f18a();
 
 #endif /* VDP_H */

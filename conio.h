@@ -89,6 +89,7 @@ unsigned char reverse(unsigned char x);
 void screensize(unsigned char *x, unsigned char *y);
 
 // changes the color of the text - works in TEXT mode only and changes ALL text on the screen
+// unless in text80color mode, or text64 mode, which allow separate color per character.
 unsigned int textcolor(unsigned int color);
 
 // printf with a format list
