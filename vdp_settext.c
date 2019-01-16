@@ -1,5 +1,7 @@
 #include "vdp.h"
 
+void fast_scrn_scroll_default();
+
 int set_text_raw() {
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_TEXT | VDP_MODE1_INT;
 	VDP_SET_REGISTER(VDP_REG_MODE0, 0);
@@ -10,6 +12,10 @@ int set_text_raw() {
 	nTextRow = 920;
 	nTextEnd = 959;
 	nTextPos = nTextRow;
+
+        vdpchar = vdpchar_default;
+        fast_scrn_scroll = fast_scrn_scroll_default;
+
 	return unblank;
 }
 

@@ -2,6 +2,9 @@
 
 int set_multicolor_raw(int sprite_mode) {
 	// this layout is untested
+
+        vdpchar = vdpchar_default;
+
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_MULTI | VDP_MODE1_INT | sprite_mode;
 	VDP_SET_REGISTER(VDP_REG_MODE0, 0);
 	VDP_SET_REGISTER(VDP_REG_MODE1, VDP_MODE1_16K | VDP_MODE1_MULTI);		// no need to OR in the sprite mode for now

@@ -1,5 +1,7 @@
 #include "vdp.h"
 
+void fast_scrn_scroll_default();
+
 // requires F18A or 9938!!
 int set_text80_raw() {
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_TEXT | VDP_MODE1_INT;
@@ -11,6 +13,10 @@ int set_text80_raw() {
 	nTextRow = 80 * 23;
 	nTextEnd = (80 * 24) - 1;
 	nTextPos = nTextRow;
+
+        vdpchar = vdpchar_default;
+        fast_scrn_scroll = fast_scrn_scroll_default;
+
 	return unblank;
 }
 
@@ -19,3 +25,4 @@ void set_text80() {
     VDP_SET_REGISTER(VDP_REG_MODE1, x);
     VDP_REG1_KSCAN_MIRROR = x;
 }
+

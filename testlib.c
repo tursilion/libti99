@@ -68,7 +68,23 @@ void testprintf() {
     screensize(&x, &y);
     cprintf("Screen is %dx%d, Cursor at %d,%d\n", x, y, wherex(), wherey());
 
+    for(int i=0;i<9;i++) {
+      cprintf("0123456789");
+    }
+    cprintf("\n");
+
     cputs("Press any key press any key Press any key press any key Press any key press any key...");
+    cgetc();
+}
+
+void testColorText() {
+    cprintf("a splash of ");
+    bgcolor(COLOR_DKRED);
+    textcolor(COLOR_LTBLUE);
+    cprintf("color!");
+    textcolor(COLOR_WHITE);
+    bgcolor(COLOR_DKBLUE);
+    cprintf("\npress any key\n");
     cgetc();
 }
 
@@ -129,6 +145,8 @@ int main() {
 
 	set_text();
 	charsetlc();
+        textcolor(COLOR_WHITE);
+        bgcolor(COLOR_DKBLUE);
 
     if(abs(75)==75 && abs(-32)==32) {
         putstring("abs function passed.");
@@ -208,6 +226,17 @@ int main() {
     set_text80();
     charsetlc();       // different VRAM layout, reload charset
     testprintf();
+
+    set_text64_color(); // uses charset from RAM instead of vdp.
+    testprintf();
+    testColorText();
+
+    set_text80_color();
+    charsetlc();       // different VRAM layout, reload charset
+    testprintf();
+    testColorText();
+    lock_f18a();
+    set_graphics(0);   // reset various other vdp state.
 
     set_text();
     charsetlc();       // different VRAM layout, reload charset

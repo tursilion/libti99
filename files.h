@@ -54,7 +54,7 @@
 #define DSR_STATUS_PROGRAM		0x08		// else type is non-program
 #define DSR_STATUS_VARIABLE		0x04		// else record length is fixed
 #define DSR_STATUS_MEMORYFULL	0x02		// else device has space remaining
-#define DST_STATUS_EOF			0x01		// else not at end of file
+#define DSR_STATUS_EOF			0x01		// else not at end of file
 
 // PAB struct
 struct __attribute__((__packed__)) PAB {
