@@ -375,8 +375,8 @@ void bm_setpixel(unsigned int x, unsigned int y);
 //         y - 0-192 - vertial location
 void bm_clearpixel(unsigned int x, unsigned int y);
 
-// bm_drawline - plot a line between two points
-void bm_drawline(int x0, int y0, int x1, int y1);
+// bm_drawline - plot a line between two points, mode 0 = clear, mode 1 = set
+void bm_drawline(int x0, int y0, int x1, int y1, int mode);
 
 // bm_consolefont - loads console font to vdp, then copies it up into ram for
 // later use in bitmap mode. Use this before switching to bitmap mode if
