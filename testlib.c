@@ -103,6 +103,10 @@ void testBitmapMode() {
     }
     bm_setforeground(0);
 
+    bm_puts(0, 23, "Press any key...");
+    while(!kbhit());
+    cgetc();
+
     bm_clearscreen();
 
     bm_puts(0,0, "Pixel test...");
@@ -121,6 +125,11 @@ void testBitmapMode() {
             bm_clearpixel(x, y);
         }
     }
+
+    bm_puts(0, 23, "Press any key...");
+    while(!kbhit());
+    cgetc();
+    
     // draw a web
     bm_setbackground(COLOR_BLACK);
     bm_setforeground(COLOR_GRAY);
@@ -133,20 +142,114 @@ void testBitmapMode() {
         y += 6;
         x += 6;
     }
+	y = 191;
+	x = 255;
+	while (y >= 0) {
+		bm_drawline(255, y, x, 0);
+		y -= 6;
+		x -= 6;
+	}
+    bm_puts(0, 23, "Press any key...");
+    while(!kbhit());
+    cgetc();
+
+    bm_clearscreen();
+    bm_puts(0,0, "Fastline test Draw...");
+    x = 0; 
+    y = 0;
+    while(y < 192) {
+        bm_drawlinefast(0, y, x, 191, 0);
+        y += 6;
+        x += 6;
+    }
+	y = 191;
+	x = 255;
+	while (y >= 0) {
+		bm_drawlinefast(255, y, x, 0, 0);
+		y -= 6;
+		x -= 6;
+	}
+    bm_puts(0, 23, "Press any key...");
+    while(!kbhit());
+    cgetc();
+
+    bm_puts(0,0, "Fastline test Erase...");
+    x = 0; 
+    y = 0;
+    while(y < 192) {
+        bm_drawlinefast(0, y, x, 191, 1);
+        y += 6;
+        x += 6;
+    }
+	y = 191;
+	x = 255;
+	while (y >= 0) {
+		bm_drawlinefast(255, y, x, 0, 1);
+		y -= 6;
+		x -= 6;
+	}
+    bm_puts(0, 23, "Press any key...");
+    while(!kbhit());
+    cgetc();
+
+    bm_clearscreen();
+    bm_puts(0,0, "Fastline test XOR...");
+    x = 0; 
+    y = 0;
+    while(y < 192) {
+        bm_drawlinefast(0, y, x, 191, 2);
+        y += 6;
+        x += 6;
+    }
+	y = 191;
+	x = 255;
+	while (y >= 0) {
+		bm_drawlinefast(255, y, x, 0, 2);
+		y -= 6;
+		x -= 6;
+	}
+    bm_puts(0, 23, "Press any key...");
+    while(!kbhit());
+    cgetc();
+
+    bm_clearscreen();
+    bm_puts(0,0, "Fasthline set......");
+    x=5;
+	for (y=8; y<192; ++y) {
+		bm_sethlinefast(127-x, y, 128+x);
+		if (x<127) ++x;
+	}
+    bm_puts(0, 23, "Press any key...");
+    while(!kbhit());
+    cgetc();
+
+    bm_clearscreen();
+    bm_puts(0,0, "Fasthline clear......");
+    for (y=8; y<192; ++y){ 
+		bm_sethlinefast(10,y,240);
+	}
+    x=5;
+    int dir=1;
+	for (y=8; y<192; ++y) {
+		bm_clearhlinefast(127-x, y, 128+x);
+		x+=dir;
+		if (x == 127) dir=-1;
+	}
 
     bm_puts(0, 23, "Press any key...");
     while(!kbhit());
-    set_text();
     cgetc();
+    set_text();
 }
+
 
 int main() {
     testBitmapMode();
 
 	set_text();
 	charsetlc();
-        textcolor(COLOR_WHITE);
-        bgcolor(COLOR_DKBLUE);
+    textcolor(COLOR_WHITE);
+    bgcolor(COLOR_DKBLUE);
 
     if(abs(75)==75 && abs(-32)==32) {
         putstring("abs function passed.");
@@ -194,6 +297,7 @@ int main() {
     cclearxy(2, 15, 10);
 
     while (!kbhit());
+    cgetc();
 
     clrscr();
     cprintf("press keys: ");

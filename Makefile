@@ -97,6 +97,10 @@ OBJECT_LIST=\
   vdp_bmdrawline.o \
   vdp_bmputs.o \
   vdp_bmsetpixel.o \
+  vdp_bmasmdrawlinefast.o \
+  vdp_bmdrawlinefast.o \
+  vdp_bmsethlinefast.o \
+  vdp_bmclearhlinefast.o \
   vdp_char.o		\
   vdp_charset.o		\
   vdp_charsetlc.o	\

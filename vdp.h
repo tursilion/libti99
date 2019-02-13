@@ -378,6 +378,21 @@ void bm_clearpixel(unsigned int x, unsigned int y);
 // bm_drawline - plot a line between two points
 void bm_drawline(int x0, int y0, int x1, int y1);
 
+// bm_drawlinefast - plot a line between two points
+// this version can DRAW (0), ERASE (1) or XOR (2)
+// Erase and XOR modes skip the color update
+// this function is faster but corrupts scratchpad from >8320 to >833F
+// extra setup time may make it slower for short lines
+// finally, color table must be at >2000 and pattern table at >0000 (setbitmap does this)
+void bm_drawlinefast(int x0, int y0, int x1, int y1, int mode);
+
+// bm_sethlinefast - draws a very fast horizontal line (there's not much speedup possible for vertical)
+// does NOT change the color
+void bm_sethlinefast(unsigned int x0, unsigned int y0, unsigned int x1);
+
+// bm_clearhlinefast - clears a very fast horizontal line (there's not much speedup possible for vertical)
+void bm_clearhlinefast(unsigned int x0, unsigned int y0, unsigned int x1);
+
 // bm_consolefont - loads console font to vdp, then copies it up into ram for
 // later use in bitmap mode. Use this before switching to bitmap mode if
 // you want a TI font.
