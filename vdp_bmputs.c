@@ -5,14 +5,14 @@ unsigned char* gBmFont = 0;
 
 // limited to 32 x 24 character placement grid.
 void bm_placetile(int x, int y, const unsigned char* pattern) {
-  unsigned int blockAddr = gPattern + (x * 8) + (y * 8 * 32);
+  unsigned int blockAddr = gPattern + (x << 3) + (y << 8);
   vdpmemcpy(blockAddr, pattern, 8);
   vdpmemset(gColor + blockAddr, gBitmapColor, 8);
 }
 
 // assumes font is ' ' through '~'
 void bm_putc(int x, int y, unsigned char alphanum) {
-  unsigned char* fontPattern = (unsigned char*) gBmFont + (((int) alphanum - 32) * 8);
+  unsigned char* fontPattern = (unsigned char*) gBmFont + (((int) alphanum - 32) << 3);
   bm_placetile(x, y, fontPattern);
 }
 
