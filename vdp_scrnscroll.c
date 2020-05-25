@@ -10,8 +10,8 @@ void scrn_scroll() {
 	}
 	vdpmemset(nTextRow, ' ', nLine);	// clear the last line
 
-        // color attribute table is only at this address in 80 column color mode.
-	if (gColor == 0x800) {
+    // color attribute table is only at these addresses in 80 column color modes.
+	if (gColor == 0x800 || gColor == 0x1800) {
 		// copy color attributes the same way
 		extern unsigned int conio_scrnCol; // conio_bgcolor.c
 

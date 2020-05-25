@@ -1,13 +1,21 @@
 #include "conio.h"
 
 void inc_row() {
-    if (conio_y >= 23) {
+    if (gColor != 0x1800 && conio_y >= 23) {
 #ifdef USE_SLOW_SCROLL
         scrn_scroll();
 #else
         fast_scrn_scroll();
 #endif
         conio_y=23;
+    } else if (gColor == 0x1800 && conio_y >= 29) {
+        // 30 ROW mode
+#ifdef USE_SLOW_SCROLL
+        scrn_scroll();
+#else
+        fast_scrn_scroll();
+#endif
+        conio_y = 29;
     } else {
         ++conio_y;
     }
@@ -25,7 +33,7 @@ void cputc(int ch) {
         // handle some control codes
         switch (ch) {
             case '\b':          // backspace
-                --conio_x; 
+                --conio_x;
                 if (conio_x < 0) {
                     conio_x = nTextEnd-nTextRow+1;
                     if (conio_y > 0) --conio_y;
