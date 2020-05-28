@@ -13,8 +13,11 @@ int set_text_raw() {
 	nTextEnd = 959;
 	nTextPos = nTextRow;
 
-        vdpchar = vdpchar_default;
-        fast_scrn_scroll = fast_scrn_scroll_default;
+    vdpchar = vdpchar_default;
+    fast_scrn_scroll = fast_scrn_scroll_default;
+
+	// set gColor so it isn't at the value used by 30 row mode.
+	gColor = 0x800;
 
 	return unblank;
 }
