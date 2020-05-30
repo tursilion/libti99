@@ -18,6 +18,9 @@ int set_text80_raw() {
 	nTextEnd = (80 * 24) - 1;
 	nTextPos = nTextRow;
 
+	// set gColor so it isn't at the value used by 30 row mode.
+	gColor = 0x800;
+
 	return unblank;
 }
 

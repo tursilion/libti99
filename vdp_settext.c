@@ -17,6 +17,9 @@ int set_text_raw() {
 	nTextEnd = 959;
 	nTextPos = nTextRow;
 
+	// set gColor so it isn't at the value used by 30 row mode.
+	gColor = 0x800;
+
 	return unblank;
 }
 

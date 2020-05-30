@@ -136,6 +136,7 @@ OBJECT_LIST=\
   vdp_settext64.o		\
   vdp_settext80.o		\
   vdp_settext80color.o		\
+  vdp_settext80x30color.o	\
   vdp_sprite.o		\
   vdp_textdefs.o	\
   vdp_vchar.o		\
