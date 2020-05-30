@@ -7,4 +7,4 @@
 
 // some text output stuff
 int nTextRow,nTextEnd;		// definitions for the bottom line of the screen
-int nTextPos;
+int nTextPos,nTextFlags;

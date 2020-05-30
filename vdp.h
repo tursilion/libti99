@@ -77,7 +77,7 @@ inline int VDP_SCREEN_TEXT64(unsigned int r, unsigned int c)			{	return (((r)<<6
 // the blanking bit in VDP register 1. This value is reset on keypress in KSCAN.
 #define VDP_SCREEN_TIMEOUT		*((volatile unsigned int*)0x83d6)
 
-// These values are flags for the interrupt control
+// These values are flags for the interrupt control 
 	// disable all processing (screen timeout and user interrupt are still processed)
 	#define VDP_INT_CTRL_DISABLE_ALL		0x80
 	// disable sprite motion
@@ -135,7 +135,7 @@ inline int VDP_SCREEN_TEXT64(unsigned int r, unsigned int c)			{	return (((r)<<6
 #define VDP_MODE1_TEXT			0x10		// set text mode
 #define VDP_MODE1_MULTI			0x08		// set multicolor mode
 #define VDP_MODE1_SPRMODE16x16	0x02		// set 16x16 sprites
-#define VDP_MODE1_SPRMAG		0x01		// set magnified sprites (2x2 pixels)
+#define VDP_MODE1_SPRMAG		0x01		// set magnified sprites (2x2 pixels) 
 
 // sprite modes for the mode set functions
 #define VDP_SPR_8x8				0x00
@@ -181,7 +181,7 @@ int set_text_raw();
 // this version enables the screen and sets the KSCAN copy for you
 void set_text();
 
-// set_text80 - sets up 80 column text mode - 80x24.
+// set_text80 - sets up 80 column text mode - 80x24. 
 // Inputs: none
 // Return: returns a value to be written to VDP_REG_MODE1 (and VDP_REG1_KSCAN_MIRROR if you use kscan())
 // The screen is blanked until you do this write, to allow you time to set it up
@@ -189,7 +189,7 @@ int set_text80_raw();
 // this version enables the screen and sets the KSCAN copy for you
 void set_text80();
 
-// set_text80_color - sets up 80 column text mode - 80x24. with Position Attributes (F18A only!)
+// set_text80_color - sets up 80 column text mode - 80x24 with Position Attributes (F18A only!)
 // Inputs: none
 // this version enables the screen and sets the KSCAN copy for you
 // Use bgcolor and textcolor functions from conio to change colors.
@@ -199,7 +199,7 @@ int set_text80_color_raw();
 // this version enables the screen and sets the KSCAN copy for you
 void set_text80_color();
 
-// set_text80x30_color - sets up 80 column text mode - 80x30. with Position Attributes (F18A only!)
+// set_text80_color - sets up 80 column text mode - 80x30 with Position Attributes (F18A only!)
 // Inputs: none
 // this version enables the screen and sets the KSCAN copy for you
 // Use bgcolor and textcolor functions from conio to change colors.
@@ -283,7 +283,7 @@ void vdpwaitvint();
 // Inputs: character to emit
 // Returns: character input
 // All characters are emitted except \r and \n which is handled for scrn_scroll and next line.
-// It works in both 32x24 and 40x24 modes. Tracking of the cursor is thus
+// It works in both 32x24 and 40x24 modes. Tracking of the cursor is thus 
 // automatic in this function, and it pulls in scrn_scroll.
 int putchar(int x);
 
@@ -291,7 +291,7 @@ int putchar(int x);
 // Inputs: NUL-terminated string to write
 // This function only emits printable ASCII characters (32-127). It works in both
 // 32x24 and 40x24 modes. It recognizes \r to go to the beginning of the line, and
-// \n to go to a new line and scroll the screen. Tracking of the cursor is thus
+// \n to go to a new line and scroll the screen. Tracking of the cursor is thus 
 // automatic in this function, and it pulls in scrn_scroll.
 void putstring(char *s);
 
@@ -360,7 +360,7 @@ void charset();
 // memory (208 bytes). Not compatible with the 99/4, if it matters.
 void charsetlc();
 
-// gplvdp - copy data from a GPL function to VDP memory.
+// gplvdp - copy data from a GPL function to VDP memory. 
 // Inputs: address of a GPL vector, VDP address to copy to, number of characters to copy
 // This is a very specialized function used by the charset() functions. It assumes a GPL 'B'
 // instruction at the vector, and that the first instruction thereafter is a 'DEST'. It uses
@@ -435,7 +435,7 @@ void bm_placetile(int c, int r, const unsigned char* pattern);
 // or use bm_setforeground and bm_setbackground
 extern unsigned char gBitmapColor;
 
-// address of bitmap mode font pattern table in cpu memory.
+// address of bitmap mode font pattern table in cpu memory. 
 // This can be intialized by calling bm_consolefont(), or
 // by setting it to your own characterset patterns spanning
 // characters ' ' to '~'
@@ -452,7 +452,20 @@ extern unsigned int gSpritePat;			// SDT, Register 6 * 0x800
 
 // text position information used by putstring and scrn_scroll
 extern int nTextRow,nTextEnd;
-extern int nTextPos;
+extern int nTextPos,nTextFlags;
+
+// bitflags for nTextFlags - no guessing! ;)
+// used for things that the generic code makes decisions on
+#define TEXT_FLAG_HAS_ATTRIBUTES 0x8000		// attribute table at gColor
+#define TEXT_FLAG_IS_BITMAPPED   0x4000		// graphics in a bitmapped mode
+#define TEXT_FLAG_IS_MULTICOLOR	 0x2000		// graphics in multicolor mode
+#define TEXT_FLAG_IS_F18A        0x1000		// mode is F18A specific
+#define TEXT_WIDTH_32            0x0800     // I wonder if I'll regret bitflags for width...
+#define TEXT_WIDTH_40            0x0400
+#define TEXT_WIDTH_64            0x0200
+#define TEXT_WIDTH_80            0x0100
+#define TEXT_HEIGHT_24           0x0080
+#define TEXT_HEIGHT_30           0x0040
 
 extern unsigned char gSaveIntCnt;	// console interrupt count byte
 

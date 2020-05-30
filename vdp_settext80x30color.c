@@ -1,5 +1,7 @@
 #include "vdp.h"
 
+// TODO: text modes should not rely on conio support if possible...
+
 static void gpu_scroll(void)
 {
      __asm__(
@@ -86,6 +88,7 @@ int set_text80x30_color_raw() {
     nTextRow = 80 * 29;
     nTextEnd = (80 * 30) - 1;
     nTextPos = nTextRow;
+	nTextFlags = TEXT_FLAG_IS_F18A | TEXT_FLAG_HAS_ATTRIBUTES | TEXT_WIDTH_80;
 
     int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_TEXT | VDP_MODE1_INT;
     VDP_SET_REGISTER(VDP_REG_MODE0, VDP_MODE0_80COL);
@@ -103,7 +106,7 @@ int set_text80x30_color_raw() {
     VDP_SET_REGISTER(VDP_REG_SDT, 0x02); // sprites can use any of the font patterns.
 
     vdpchar = vdpchar80color;
-    fast_scrn_scroll = fast_scrn_scroll_80color;
+    scrn_scroll = fast_scrn_scroll_80color;
 
     // sprites are active when F18A is unlocked
     VDP_SET_REGISTER(0x33, 0x00);

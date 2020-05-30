@@ -22,6 +22,7 @@ int set_graphics_raw(int sprite_mode) {
 	nTextRow = 736;
 	nTextEnd = 767;
 	nTextPos = nTextRow;
+	nTextFlags = TEXT_WIDTH_32;
 	return unblank;
 }
 

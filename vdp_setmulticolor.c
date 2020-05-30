@@ -16,6 +16,8 @@ int set_multicolor_raw(int sprite_mode) {
 	nTextRow = 736;
 	nTextEnd = 767;
 	nTextPos = nTextRow;
+	nTextFlags = TEXT_FLAG_IS_MULTICOLOR | TEXT_WIDTH_32;	// technically 32 characters, not sure here...
+														    // is printing to multicolor even useful?
 	return unblank;
 }
 

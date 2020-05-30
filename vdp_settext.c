@@ -12,13 +12,11 @@ int set_text_raw() {
 	VDP_SET_REGISTER(VDP_REG_MODE1, VDP_MODE1_16K | VDP_MODE1_TEXT);
 	VDP_SET_REGISTER(VDP_REG_SIT, 0x00);	gImage = 0x000;
 	VDP_SET_REGISTER(VDP_REG_PDT, 0x01);	gPattern = 0x800;
-	// no sprites and no color in text mode anyway
-	nTextRow = 920;
-	nTextEnd = 959;
+	// no sprites and no color in text mode anyway - values undefined
+	nTextRow = 23*40;
+	nTextEnd = 23*40+39;
 	nTextPos = nTextRow;
-
-	// set gColor so it isn't at the value used by 30 row mode.
-	gColor = 0x800;
+	nTextFlags = TEXT_WIDTH_40;
 
 	return unblank;
 }

@@ -16,6 +16,7 @@ int set_bitmap_raw(int sprite_mode) {
 	nTextRow = 736;
 	nTextEnd = 767;
 	nTextPos = nTextRow;
+	nTextFlags = TEXT_FLAG_IS_BITMAPPED | TEXT_FLAG_HAS_ATTRIBUTES | TEXT_WIDTH_32;
 	return unblank;
 }
 

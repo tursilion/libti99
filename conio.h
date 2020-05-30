@@ -6,24 +6,24 @@
 // this code maintains its own cursor position and is not compatible with the 
 // vdp_put functions directly.
 
+// TODO: do something to bring the nTextRow/etc in better synchronicity
+// with the conio_x/conio_y variables
+
 #ifndef CONIO_H
 #define CONIO_H
 
 #include "vdp.h"
 #include <stdarg.h>
 
-// enable this define and rebuild the library to free up 256 bytes of buffer space
-//#define USE_SLOW_SCROLL
-
 // get a VRAM address based on the screen mode we're in
 extern int conio_x,conio_y;
 unsigned int conio_getvram();
 
-// bgcolor - sets the screen background color.
+// bgcolor - sets the character background color in attribute-based text modes
 extern unsigned int conio_scrnCol;
 unsigned int bgcolor(unsigned int color);
 
-// bordercolor - this is the same as the background color on the TI, so we don't set it
+// bordercolor - set the background color on the TI
 unsigned int bordercolor(unsigned int x);
 
 // cclear - write spaces

@@ -23,6 +23,7 @@ const unsigned char TrueLowerCase[] = {				// chars 96-122
 void charsetlc() {
 	vdpmemcpy(gPattern+0x300, TrueLowerCase, sizeof(TrueLowerCase));
 	gplvdp(0x0018, gPattern+0x100-1, 64);	// the rest of the character set (-1 to shift it up to match lowercase)
+	vdpmemset(gPattern+(30*8), 0xfc, 8);	// cursor
 }
 
 

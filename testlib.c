@@ -2,6 +2,7 @@
 #include "puff.h"
 #include "conio.h"
 #include "math.h"
+#include "kscan.h"
 
 unsigned char helloworldraw[] = {
   0xF3,0x48,0xCD,0xC9 ,0xC9 ,0x57 ,0x70 ,0xF6 ,0xF7 
@@ -18,6 +19,7 @@ unsigned int srclen;
 void testprintf() {
     unsigned char x, y;
 
+    gotoxy(0,0);
     cprintf("\fTesting printf...\n\n");
     cprintf("1\t2\t3\t4\t\n");
     cprintf("Superbug\b\b\bman\n");
@@ -244,18 +246,33 @@ void testBitmapMode() {
 
 
 int main() {
-    testBitmapMode();
-
+	int f18 = 0;
+	
 	set_text();
 	charsetlc();
     textcolor(COLOR_WHITE);
     bgcolor(COLOR_DKBLUE);
+	puts("Include F18A tests? (Y/N)");
+	for(;;) {
+		kscan(KSCAN_MODE_BASIC);
+		if ((KSCAN_KEY == 'Y')||(KSCAN_KEY=='N')) break;
+	}
+	if (KSCAN_KEY == 'Y') f18=1;
+	
+
+    testBitmapMode();
+
+	set_text();
+	clrscr();
+	charsetlc();
+    textcolor(COLOR_WHITE);
+    bgcolor(COLOR_DKBLUE);
+    putstring("hello world!\n");
 
     if(abs(75)==75 && abs(-32)==32) {
-        putstring("abs function passed.");
+        putstring("abs function passed.\n");
     }
 
-    putstring("hello world!\n");
 	putstring("\nsizeof(int):  ");
 	hexprint(sizeof(int));
 	putstring("\nsizeof(long): ");
@@ -324,23 +341,34 @@ int main() {
     testprintf();
     
     set_graphics(0);
-    vdpmemset(gColor, 0x20, 32);    // set color table
+    vdpmemset(gColor, COLOR_CYAN<<4, 32);    // set color table
     testprintf();
 
-    set_text80();
-    charsetlc();       // different VRAM layout, reload charset
-    testprintf();
+	if (f18) {
+		set_text80();
+		charsetlc();       // different VRAM layout, reload charset
+		testprintf();
+	}
 
     set_text64_color(); // uses charset from RAM instead of vdp.
     testprintf();
     testColorText();
 
-    set_text80_color();
-    charsetlc();       // different VRAM layout, reload charset
-    testprintf();
-    testColorText();
-    lock_f18a();
-    set_graphics(0);   // reset various other vdp state.
+	if (f18) {
+		set_text80_color();
+		charsetlc();       // different VRAM layout, reload charset
+		testprintf();
+		testColorText();
+		lock_f18a();
+		set_graphics(0);   // reset various other vdp state.
+
+		set_text80x30_color();
+		charsetlc();       // different VRAM layout, reload charset
+		testprintf();
+		testColorText();
+		lock_f18a();
+		set_graphics(0);   // reset various other vdp state.
+	}
 
     set_text();
     charsetlc();       // different VRAM layout, reload charset
@@ -348,9 +376,9 @@ int main() {
 
     for (int idx = 0; idx < 12; ++idx) {
         cputcxy(idx, idx, '*');
-        cputcxy(39-idx, idx, '*');
+        cputcxy(38-idx, idx, '*');
         cputcxy(idx, 23-idx, '*');
-        cputcxy(39-idx, 23-idx, '*');
+        cputcxy(38-idx, 23-idx, '*');   // avoid last screen position or we'll scroll
     }
     cgetc();
 
