@@ -6,7 +6,6 @@
 #ifndef VDP_H
 #define VDP_H
 
-
 //*********************
 // VDP access ports
 //*********************
@@ -247,13 +246,11 @@ void vdpmemread(int pAddr, unsigned char *pDest, int cnt);
 // incrementing tables
 void vdpwriteinc(int pAddr, int nStart, int cnt);
 
-
 // vdpchar - write a character to VDP memory (NOT to be confused with basic's CALL CHAR)
 // Inputs: VDP address to write, character to be written
 // use indirect function call for each mode
 extern void (*vdpchar)(int pAddr, int ch);
 void vdpchar_default(int pAddr, int ch);
-
 
 // vdpreadchar - read a character from VDP memory
 // Inputs: VDP address to read
@@ -288,6 +285,10 @@ int putchar(int x);
 // automatic in this function, and it pulls in scrn_scroll.
 void putstring(char *s);
 
+// puts - calls putstring, but adds a carriage return. Needed for gcc compatibility
+// always returns 1
+int puts(char *s);
+
 // printf - writes a string with limited formatting. Only supports a very small subset
 // of formatting at the moment. Supports width (for most fields), s, u, i, d, c and X
 // (X is byte only). This function will call in putchar().
@@ -307,9 +308,12 @@ void fast_hexprint(unsigned char x);
 void faster_hexprint(unsigned char x);
 
 // scrn_scroll - scrolls the screen upwards one line - works in 32x24, 40x24 and 80x24 modes
-void scrn_scroll();
+// the pointer let you replace it, particularly with fast_scrn_scroll
+void scrn_scroll_default();
+extern void (*scrn_scroll)();
+
 // fast_scrn_scroll- does the same, but uses 256 fixed bytes to do it faster
-extern void (*fast_scrn_scroll)();
+void fast_scrn_scroll();
 
 // hchar - repeat a character horizontally on the screen, similar to CALL HCHAR
 // Inputs: row and column (0-based, not 1-based) to start, character to repeat, number of repetitions (not optional)
@@ -430,11 +434,11 @@ extern unsigned char* gBmFont;
 // global pointers for all to enjoy - make sure the screen setup code updates them!
 // assumptions here are for E/A environment, they may not be accurate and your
 // program should NOT trust them until after one of the mode set functions is called.
-extern unsigned int gImage;					// SIT, Register 2 * 0x400
-extern unsigned int gColor;					// CR,  Register 3 * 0x40
+extern unsigned int gImage;				// SIT, Register 2 * 0x400
+extern unsigned int gColor;				// CR,  Register 3 * 0x40
 extern unsigned int gPattern;				// PDT, Register 4 * 0x800
 extern unsigned int gSprite;				// SAL, Register 5 * 0x80
-extern unsigned int gSpritePat;				// SDT, Register 6 * 0x800
+extern unsigned int gSpritePat;			// SDT, Register 6 * 0x800
 
 // text position information used by putstring and scrn_scroll
 extern int nTextRow,nTextEnd;

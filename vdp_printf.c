@@ -9,7 +9,6 @@ int printf(char *str, ...) {
   char *p;
   char *s;
   char *orig;
-  int v;
   unsigned int u;
   char ch;
   int w,x;

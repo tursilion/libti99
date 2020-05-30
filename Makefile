@@ -78,7 +78,10 @@ OBJECT_LIST=\
   str_atoi.o      \
   str_gets.o      \
   str_int2str.o   \
+  str_memcmp.o    \
   str_memcpy.o    \
+  str_memset.o    \
+  str_strcmp.o	\
   str_strcpy.o    \
   str_strlen.o		\
   str_uint2hex.o  \
@@ -119,12 +122,12 @@ OBJECT_LIST=\
   vdp_memset.o		\
   vdp_printf.o    \
   vdp_putchar.o   \
+  vdp_puts.o	\
   vdp_putstring.o	\
   vdp_readchar.o	\
   vdp_screenchar.o	\
   vdp_scrnscroll.o	\
   vdp_fastscrnscroll.o	\
-  vdp_fastscrnscroll_default.o	\
   vdp_setbitmap.o	\
   vdp_setgraphics.o	\
   vdp_setmode.o		\

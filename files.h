@@ -61,10 +61,10 @@ struct __attribute__((__packed__)) PAB {
 	unsigned char OpCode;			// see DSR_xxx list above
 	unsigned char Status;			// file type and error code (DSR_ERR_xxx and DSR_TYPE_xxx)
 	unsigned int  VDPBuffer;		// address of the data buffer in VDP memory
-	unsigned char RecordLength;		// size of records. Not used for PROGRAM type. >00 on open means autodetect
+	unsigned char RecordLength;	// size of records. Not used for PROGRAM type. >00 on open means autodetect
 	unsigned char CharCount;		// number of bytes read or number of bytes to write
 	unsigned int  RecordNumber;		// record number for normal files, available bytes (LOAD or SAVE) for PROGRAM type
-	unsigned char ScreenOffset;		// Used in BASIC for screen BIAS. Also returns file status on Status call. (DSR_STATUS_xxx)
+	unsigned char ScreenOffset;	// Used in BASIC for screen BIAS. Also returns file status on Status call. (DSR_STATUS_xxx)
 	unsigned char NameLength;		// for this implementation only, set to zero to read the length from the string
 	unsigned char *pName;			// for this implementation only, must be a valid C String even if length is set
 };

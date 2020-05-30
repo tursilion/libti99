@@ -7,8 +7,14 @@ static void fast_scrn_scroll64();
 static void vdpchar64(int pAddr, int ch);
 
 int set_text64_raw(void) {
+    extern unsigned int conio_scrnCol; // conio_bgcolor.c
+
 	// note: no masking, full size bitmap mode
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_INT;
+
+	vdpchar = vdpchar64;
+	scrn_scroll = fast_scrn_scroll64;
+
 	VDP_SET_REGISTER(VDP_REG_MODE0, VDP_MODE0_BITMAP);
 	VDP_SET_REGISTER(VDP_REG_MODE1, VDP_MODE1_16K);		// no need to OR in the sprite mode for now
 	VDP_SET_REGISTER(VDP_REG_SIT, 0x0E);	gImage = 0x3800;
@@ -21,16 +27,12 @@ int set_text64_raw(void) {
 	nTextPos = nTextRow;
 
 	int i;
-        VDP_SET_ADDRESS_WRITE(gImage);
+    VDP_SET_ADDRESS_WRITE(gImage);
 	for (i = 0; i < 32*24; i++) {
             VDPWD = i;
 	}
 	vdpmemset(gPattern, 0, 32*24*8);
-        extern unsigned int conio_scrnCol; // conio_bgcolor.c
 	vdpmemset(gColor, conio_scrnCol, 32*24*8);
-
-        vdpchar = vdpchar64;
-        fast_scrn_scroll = fast_scrn_scroll64;
 
 	return unblank;
 }

@@ -1,6 +1,6 @@
 #include "vdp.h"
 
-void scrn_scroll() {
+void scrn_scroll_default() {
 	// hacky, slow, but functional scroll that takes minimal memory
 	unsigned char x[4];		// 4 byte buffer to speed it up
 	int nLine = nTextEnd-nTextRow+1;
@@ -22,3 +22,5 @@ void scrn_scroll() {
 		vdpmemset(nTextRow+gColor, conio_scrnCol, nLine);	// clear the last line
 	}
 }
+
+void (*scrn_scroll)() = scrn_scroll_default;

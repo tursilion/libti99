@@ -84,6 +84,9 @@ int set_text80_color_raw() {
     // unlock the F18A (should be done before setting the mode)
     unlock_f18a();
 
+    vdpchar = vdpchar80color;
+    scrn_scroll = fast_scrn_scroll_80color;
+
     int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_TEXT | VDP_MODE1_INT;
     VDP_SET_REGISTER(VDP_REG_MODE0, VDP_MODE0_80COL);
     VDP_SET_REGISTER(VDP_REG_MODE1, VDP_MODE1_16K | VDP_MODE1_TEXT);
@@ -93,9 +96,6 @@ int set_text80_color_raw() {
     nTextRow = 80 * 23;
     nTextEnd = (80 * 24) - 1;
     nTextPos = nTextRow;
-
-    vdpchar = vdpchar80color;
-    fast_scrn_scroll = fast_scrn_scroll_80color;
 
     VDP_SET_REGISTER(VDP_REG_CT, 0x20);		gColor = 0x800;
     // sprites are active when F18A is unlocked

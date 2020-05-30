@@ -2,8 +2,8 @@
 
 int set_multicolor_raw(int sprite_mode) {
 	// this layout is untested
-
-        vdpchar = vdpchar_default;
+    vdpchar = vdpchar_default;
+    scrn_scroll = scrn_scroll_default;
 
 	int unblank = VDP_MODE1_16K | VDP_MODE1_UNBLANK | VDP_MODE1_MULTI | VDP_MODE1_INT | sprite_mode;
 	VDP_SET_REGISTER(VDP_REG_MODE0, 0);
