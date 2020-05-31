@@ -42,6 +42,8 @@ inline int VDP_SCREEN_TEXT(unsigned int r, unsigned int c)			{	return (((r)<<5)+
 inline int VDP_SCREEN_TEXT80(unsigned int r, unsigned int c)	    {	return (((r)<<6)+((r)<<4)+(c));				}
 
 // get a screen offset for 64x24 graphics mode
+// NOTE: This is not a real VDP address, it's a virtual address that vdpchar64 understands
+// Do not add gImage to it!
 inline int VDP_SCREEN_TEXT64(unsigned int r, unsigned int c)			{	return (((r)<<6)+(c));						}
 
 //*********************

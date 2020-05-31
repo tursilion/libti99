@@ -8,11 +8,17 @@ void writestring(int row, int col, char *pStr) {
 	} else if (nTextFlags&TEXT_WIDTH_80) {
 		VDP_SET_ADDRESS_WRITE(VDP_SCREEN_TEXT80(row,col)+gImage);
 	} else if (nTextFlags&TEXT_WIDTH_64) {
-		// TODO: this doesn't make any sense, does it??
-		VDP_SET_ADDRESS_WRITE(VDP_SCREEN_TEXT64(row,col)+gImage);
+        // we can use a slower version here... we really have no choice
+        int adr = VDP_SCREEN_TEXT64(row,col);
+	    while (*pStr) {
+            vdpchar(adr++, *(pStr++));
+	    }
+        return;
 	} else {
 		return;
 	}
+
+    // write the string to the tiles
 	while (*pStr) {
 		VDPWD = *(pStr++);
 	}
