@@ -22,8 +22,7 @@ void gets(char *buf, int maxlen) {
         *buf = '\0';
         vdpchar(nTextPos, ' ');
         putchar('\n');
-        // eat all extra repeating ENTER values.
-        // this happens if the ENTER key is held down for instance
+        // wait for enter to be released
         while (kscan(5) == oldch) {
           VDP_INT_ENABLE;
           VDP_INT_DISABLE;
