@@ -74,6 +74,7 @@ OBJECT_LIST=\
   rs232raw_setPIOinput.o \
   rs232raw_setPIOoutput.o \
   rs232raw_writebyte.o \
+  speech.o \
   stcount.o			\
   str_atoi.o      \
   str_gets.o      \
