@@ -3,7 +3,7 @@
 #include "math.h"
 
 
-void plotLineLow(int x0, int y0, int x1, int y1) {
+void plotLineLow(int x0, int y0, int x1, int y1, int mode) {
     int dx = x1 - x0;
     int dy = y1 - y0;
     int yi = 1;
@@ -15,6 +15,9 @@ void plotLineLow(int x0, int y0, int x1, int y1) {
     int y = y0;
 
     for (int x=x0; x<=x1; x++) {
+      if (mode==0)
+	bm_clearpixel(x,y);
+      else
         bm_setpixel(x,y);
         if (d > 0) {
             y = y + yi;
@@ -24,7 +27,7 @@ void plotLineLow(int x0, int y0, int x1, int y1) {
     }
 }
 
-void plotLineHigh(int x0, int y0, int x1, int y1) {
+void plotLineHigh(int x0, int y0, int x1, int y1, int mode) {
     int dx = x1 - x0;
     int dy = y1 - y0;
     int xi = 1;
@@ -36,7 +39,10 @@ void plotLineHigh(int x0, int y0, int x1, int y1) {
     int x = x0;
 
     for(int y=y0; y<=y1; y++) {
-        bm_setpixel(x, y);
+      if (mode==0)
+	bm_clearpixel(x,y);
+      else
+        bm_setpixel(x,y);
         if (d > 0) {
             x = x + xi;
             d = d - 2*dy;
@@ -45,18 +51,18 @@ void plotLineHigh(int x0, int y0, int x1, int y1) {
     }
 }
 
-void bm_drawline(int x0, int y0, int x1, int y1) {
+void bm_drawline(int x0, int y0, int x1, int y1, int mode) {
     if (abs(y1 - y0) < abs(x1 - x0)) {
         if (x0 > x1) {
-            plotLineLow(x1, y1, x0, y0);
+	  plotLineLow(x1, y1, x0, y0, mode);
         } else {
-            plotLineLow(x0, y0, x1, y1);
+	  plotLineLow(x0, y0, x1, y1, mode);
         }
     } else {
         if (y0 > y1) {
-            plotLineHigh(x1, y1, x0, y0);
+	  plotLineHigh(x1, y1, x0, y0, mode);
         } else {
-            plotLineHigh(x0, y0, x1, y1);
+	  plotLineHigh(x0, y0, x1, y1, mode);
         }
     }
 }

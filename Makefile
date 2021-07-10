@@ -1,9 +1,9 @@
 # Paths to TMS9900 compilation tools 
 # ( Set in environment to override paths )
-TMS9900_DIR?=/home/tursilion/gcc9900/bin
-ELF2EA5_DIR?=/home/tursilion/gcc9900/bin
-EA5_SPLIT_DIR?=/home/tursilion/gcc9900/bin
-CLASSIC99_DSK1?=/mnt/d/classic99/DSK1/
+TMS9900_DIR?=/cygdrive/d/tms9900/bin
+ELF2EA5_DIR?=/usr/local/bin
+EA5_SPLIT_DIR?=/usr/local/bin
+CLASSIC99_DSK1?=/cygdrive/d/classic99/DSK1/
 
 # Full paths to the executables used
 GAS=$(TMS9900_DIR)/tms9900-as
@@ -101,10 +101,6 @@ OBJECT_LIST=\
   vdp_bmdrawline.o \
   vdp_bmputs.o \
   vdp_bmsetpixel.o \
-  vdp_bmasmdrawlinefast.o \
-  vdp_bmdrawlinefast.o \
-  vdp_bmsethlinefast.o \
-  vdp_bmclearhlinefast.o \
   vdp_char.o		\
   vdp_charset.o		\
   vdp_charsetlc.o	\

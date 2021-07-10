@@ -141,7 +141,7 @@ void testBitmapMode() {
     int x = 0; 
     int y = 0;
     while(y < 192) {
-        bm_drawline(0, y, x, 191);
+      bm_drawline(0, y, x, 191,1);
         y += 6;
         x += 6;
     }
