@@ -148,7 +148,7 @@ void testBitmapMode() {
 	y = 191;
 	x = 255;
 	while (y >= 0) {
-		bm_drawline(255, y, x, 0);
+		bm_drawline(255, y, x, 0, 1);
 		y -= 6;
 		x -= 6;
 	}
