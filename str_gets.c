@@ -22,6 +22,11 @@ void gets(char *buf, int maxlen) {
         *buf = '\0';
         vdpchar(nTextPos, ' ');
         putchar('\n');
+        // wait for enter to be released
+        while (kscan(5) == oldch) {
+          VDP_INT_ENABLE;
+          VDP_INT_DISABLE;
+        }
         break;
       
       case 8:   // backspace

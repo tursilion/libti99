@@ -3,6 +3,7 @@
 #include "conio.h"
 #include "math.h"
 #include "kscan.h"
+#include "speech.h"
 
 unsigned char helloworldraw[] = {
   0xF3,0x48,0xCD,0xC9 ,0xC9 ,0x57 ,0x70 ,0xF6 ,0xF7 
@@ -140,7 +141,7 @@ void testBitmapMode() {
     int x = 0; 
     int y = 0;
     while(y < 192) {
-        bm_drawline(0, y, x, 191);
+      bm_drawline(0, y, x, 191,1);
         y += 6;
         x += 6;
     }
@@ -242,6 +243,14 @@ void testBitmapMode() {
     while(!kbhit());
     cgetc();
     set_text();
+}
+
+void test_speech() {
+    if (detect_speech()) {
+        printf("Speech Synthesizer detected\n");
+        say_vocab(VOCAB_GOOD_WORK);
+	speech_wait();
+    }
 }
 
 
@@ -394,6 +403,8 @@ int main() {
         while (kbhit()) cgetc();
     }
     cgetc();
+
+    test_speech();
     
     printf("** DONE **\n");
 	halt();

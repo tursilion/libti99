@@ -28,7 +28,8 @@ void __attribute__((noinline)) dsrlnkraw(unsigned int vdp) {
 	}
 	if ((cnt == 0) || (cnt > 7)) {
 		// illegal device name length
-		vdpchar(status, DSR_ERR_FILEERROR);
+		VDP_SET_ADDRESS_WRITE(status);
+		VDPWD = DSR_ERR_FILEERROR;
 		return;
 	}
 	// save off the device name length (asm below uses it!)

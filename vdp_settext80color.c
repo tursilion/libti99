@@ -102,7 +102,7 @@ int set_text80_color_raw() {
 
     VDP_SET_REGISTER(VDP_REG_CT, 0x20);		gColor = 0x800;
     // sprites are active when F18A is unlocked
-    VDP_SET_REGISTER(VDP_REG_SAL, 0x1800/0x80); gSprite = 0x1800; vdpchar(gSprite, 0xd0);
+    VDP_SET_REGISTER(VDP_REG_SAL, 0x1800/0x80); gSprite = 0x1800; vdpchar_default(gSprite, 0xd0);
     vdpmemset(gColor, conio_scrnCol, nTextEnd+1);	// clear the color table
     VDP_SET_REGISTER(0x32, 0x02);  // set Position-based tile attributes
 
