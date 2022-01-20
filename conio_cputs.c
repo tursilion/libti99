@@ -2,8 +2,7 @@
 
 void cputs(const char *s) {
     while (*s) {
-        cputc(*s);
-        ++s;
+        cputc(*(s++));
     }
 }
 

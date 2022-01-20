@@ -83,11 +83,13 @@ OBJECT_LIST=\
   str_memset.o    \
   str_strcmp.o	\
   str_strcpy.o    \
+  str_strncpy.o    \
   str_strlen.o		\
   str_uint2hex.o  \
   str_uint2str.o  \
   sys_exit.o      \
   sys_halt.o			\
+  sys_checkquit.o	\
   tiplayer.o		\
   tiplayer30hz.o	\
   tiplayersfx.o		\

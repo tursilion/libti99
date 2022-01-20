@@ -14,6 +14,9 @@ int atoi(char *s);
 // copy a zero-terminated string from s to d, returns d
 char *strcpy(char *d, const char *s);
 
+// copy a zero-terminated string from s to d, max len, returns d
+char *strncpy(char *d, const char *s, int len);
+
 // compare two zero-terminated strings, return >0 if s1 is greater,
 // <0 if s2 is greater, or 0 if the strings are equal
 int strcmp(const char *s1, const char *s2);

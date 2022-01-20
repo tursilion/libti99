@@ -11,4 +11,7 @@ void halt() __attribute__ ((noreturn));
 // Exit function -- reboots the console.
 void exit() __attribute__ ((noreturn));
 
+// reboot if quit key is pressed
+void checkquit();
+
 #endif /* SYSTEM_H */

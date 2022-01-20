@@ -23,11 +23,16 @@
 // Inline VDP helpers
 //*********************
 
+// the TI only needs a delay between setting the read address and reading,
+// and only with certain instruction combinations in fast memory. SO, this
+// function does not delay here.
+inline void VDP_SAFE_DELAY() {	}
+
 // Set VDP address for read (no bit added)
 inline void VDP_SET_ADDRESS(unsigned int x)							{	VDPWA=((x)&0xff); VDPWA=((x)>>8);			}
 
 // Set VDP address for write (adds 0x4000 bit)
-inline void VDP_SET_ADDRESS_WRITE(unsigned int x)					{	VDPWA=((x)&0xff); VDPWA=(((x)>>8)|0x40);	}
+inline void VDP_SET_ADDRESS_WRITE(unsigned int x)					{	VDPWA=((x)&0xff); VDPWA=(((x|0x4000)>>8));	}
 
 // Set VDP write-only register 'r' to value 'v'
 inline void VDP_SET_REGISTER(unsigned char r, unsigned char v)		{	VDPWA=(v); VDPWA=(0x80|(r));				}
@@ -93,9 +98,9 @@ inline int VDP_SCREEN_TEXT64(unsigned int r, unsigned int c)			{	return (((r)<<6
 // call vdpwaitvint() instead if you want to keep running the console interrupt
 // DO NOT USE the non-CRU version - this will miss interrupts.
 //#define VDP_WAIT_VBLANK  		while (!(VDPST & VDP_ST_INT)) { }
-#define VDP_WAIT_VBLANK_CRU	  __asm__( "clr r12\n\ttb 2\n\tjeq -4\n\tmovb @>8802,r12" : : : "r12" );
+#define VDP_WAIT_VBLANK_CRU	  __asm__( "clr r12\nvdp%=:\n\ttb 2\n\tjeq vdp%=\n\tmovb @>8802,r12" : : : "r12" );
 // This version lets you get the status register into a variable (pass the desired variable)
-#define VDP_WAIT_VBLANK_CRU_STATUS(x)	  __asm__( "clr r12\n\ttb 2\n\tjeq -4\n\tmovb @>8802,%0" : "=rm" (x) : : "r12" );
+#define VDP_WAIT_VBLANK_CRU_STATUS(x)	  __asm__( "clr r12\n\t\nvdp%=:\n\ttb 2\n\tjeq vdp%=\n\tmovb @>8802,%0" : "=rm" (x) : : "r12" );
 
 // we enable interrupts via the CPU instruction, not the VDP itself, because it's faster
 // Note that on the TI interrupts DISABLED is the default state
