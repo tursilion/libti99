@@ -62,7 +62,11 @@ void cputs(const char *s);
 void cputsxy(int xx, int yy, const char *s);
 
 // enable/disable the cgetc cursor
-#define cursor(x) conio_cursorFlag=(x)
+#define cursor(x) \
+do \
+{ \
+    conio_cursorFlag=(x); \
+} while(0)
 
 // draw a vertical line
 void cvline(int len);
@@ -71,13 +75,26 @@ void cvline(int len);
 void cvlinexy(int x, int y, int len);
 
 // change the x location only
-#define gotox(x) conio_x = (x)
+#define gotox(x) \
+do \
+{ \
+    conio_x = (x); \
+} while(0)
 
 // change the xy location
-#define gotoxy(x,y) conio_x = (x); conio_y = (y)
+#define gotoxy(x,y) \
+do \
+{ \
+    conio_x = (x); \
+    conio_y = (y); \
+} while(0)
 
 // change the y location only
-#define gotoy(y) conio_y = (y)
+#define gotoy(y) \
+do \
+{ \
+    conio_y = (y); \
+} while(0)
 
 // check for a key - simulates a 1-key buffer
 unsigned char kbhit();
