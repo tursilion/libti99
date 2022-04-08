@@ -1,9 +1,9 @@
 # Paths to TMS9900 compilation tools 
 # ( Set in environment to override paths )
-TMS9900_DIR?=/cygdrive/d/tms9900/bin
-ELF2EA5_DIR?=/usr/local/bin
-EA5_SPLIT_DIR?=/usr/local/bin
-CLASSIC99_DSK1?=/cygdrive/d/classic99/DSK1/
+TMS9900_DIR?=~/gcc9900/bin
+ELF2EA5_DIR?=~/gcc9900/bin
+EA5_SPLIT_DIR?=~/gcc9900/bin
+CLASSIC99_DSK1?=/mnt/d/classic99/DSK1/
 
 # Full paths to the executables used
 GAS=$(TMS9900_DIR)/tms9900-as
@@ -145,7 +145,7 @@ OBJECT_LIST=\
   vdp_writestring.o
 
 # Recipe to compile the library
-all: library test
+all: library test example
 
 library: $(OBJECT_LIST)
 	$(AR) rcs $(NAME) $(OBJECT_LIST)
@@ -155,6 +155,12 @@ test: library testlib.o $(OBJECT_LIST_EA5)
 	$(ELF2EA5) testlib.ea5.elf testlib.ea5.bin
 	$(EA5_SPLIT) testlib.ea5.bin
 	cp TESTLI* $(CLASSIC99_DSK1)
+
+example: library example.o $(OBJECT_LIST_EA5) 
+	$(LD) $(OBJECT_LIST_EA5) example.o $(LDFLAGS_EA5) -L. -lti99 -o example.ea5.elf > ea5.map
+	$(ELF2EA5) example.ea5.elf example.ea5.bin
+	$(EA5_SPLIT) example.ea5.bin
+	cp EXAMPL* $(CLASSIC99_DSK1)
 
 # Recipe to clean all compiled objects
 .phony clean:
