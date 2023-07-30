@@ -30,6 +30,8 @@
 	#define DSR_ERR_PASTEOF			0xA0
 	#define DSR_ERR_DEVICEERROR		0xC0
 	#define DSR_ERR_FILEERROR		0xE0
+	// note that DSR_ERR_DSRNOTFOUND does not fit in the 3 reserved bits!
+	#define DSR_ERR_DSRNOTFOUND     0xFF
 
 // DSR_TYPE not intended for comparisons, since there are lots of 0x00 ;)
 #define DSR_TYPE_VARIABLE	0x10
@@ -90,7 +92,7 @@ unsigned char dsrlnk(struct PAB *pab, unsigned int vdp);
 // Execute a DSR link on the PAB already in VDP. Use this if you know the VDP PAB is already
 // updated and you don't want the overhead of copying it again.
 // Inputs: pointer to PAB in VDP
-// Note: no return code. Read it from the PAB yourself. :)
-void dsrlnkraw(unsigned int vdppab);
-
+// Returns 0 on success, or 1 on error. Read error code from PAB+1. If it's 0, the DSR was not found.
+unsigned char dsrlnkraw(unsigned int vdppab);
+	
 #endif /* FILES_H */

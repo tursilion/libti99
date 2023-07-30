@@ -28,9 +28,16 @@ unsigned char dsrlnk(struct PAB *pab, unsigned int vdp) {
 	}
 
 	// now we can call it
-	dsrlnkraw(vdp);
+	if (dsrlnkraw(vdp)) {
+        unsigned char ret = vdpreadchar(vdp+1);
+        if (ret == 0) {
+            return DSR_ERR_DSRNOTFOUND;
+        } else {
+            return GET_ERROR(ret);
+        }
+    }
 
-	// now return the result
-	return GET_ERROR(vdpreadchar(vdp+1));
+	// all good, presumably
+	return DSR_ERR_NONE;
 }
 
