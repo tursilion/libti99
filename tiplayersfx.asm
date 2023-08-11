@@ -413,7 +413,7 @@ runpart2
 
 	mov @playmask,r7	# copy output flags to R7 (MSB music, LSB sfx)
 
-	mov @retad2,r11		# get return adress back
+	mov @retad2,r11		# get return address back
 
 ## temp hack - measuring time ##
 #	li r0, >0287

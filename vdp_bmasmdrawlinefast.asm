@@ -127,7 +127,7 @@ yokay
 	soc r4,r6
 	andi r6,>ff07
 	a r5,r6
-	andi r5,7		# r5 now has bit offet
+	andi r5,7		# r5 now has bit offset
 	s r5,r6			# r6 now has byte offset (which is also a pattern table offset at >0000)
 	sla r5,1		# bits # 2
 	mov @bits(r5),r5	# now it's a bitmask
@@ -266,7 +266,7 @@ yoka2
 	soc r4,r6
 	andi r6,>ff07
 	a r5,r6
-	andi r5,7		# r5 now has bit offet
+	andi r5,7		# r5 now has bit offset
 	s r5,r6			# r6 now has byte offset (and pattern table at >0000)
 	sla r5,1		# bits # 2
 	mov @bits(r5),r5	# now it's a bitmask

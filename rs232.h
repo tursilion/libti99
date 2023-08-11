@@ -45,7 +45,7 @@
 #define RS232_UART_CTSINT	20		// RTS (or DSR?) /or/ CTS interrupt occurred (reset bit 21)
 #define RS232_UART_RXFULL	21		// receive register full (clear with bit 18 (?))
 #define RS232_UART_TXEMPTY	22		// emission register empty
-#define RS232_UART_SHEMPTY	23		// shift register emtpy (no data currently being sent)
+#define RS232_UART_SHEMPTY	23		// shift register empty (no data currently being sent)
 #define RS232_UART_TIMERR	24		// timer error - elapsed twice. Reset with bit 20
 #define RS232_UART_TIMEDONE	25		// timer elapsed - reset with bit 20
 #define RS232_UART_RTS		26		// status of RTS pin (inverted)
@@ -102,7 +102,7 @@
 // The PIO is a combination of memory-mapped and some CRU for control
 // the UARTs are entirely CRU
 // Normally, set your card base, configure the card, then set the UART/9902 base and configure the UART itself
-// funtions below do the calculations/mapping each call, except for the 'raw' functions, which will be faster if
+// functions below do the calculations/mapping each call, except for the 'raw' functions, which will be faster if
 // you can afford to remember the card's state in your application
 
 // basic card functions - you don't need these unless you use the 'raw' mode function calls
@@ -143,7 +143,7 @@ void rs232_setbps(int card, int uart, int bps);
 // (because the write register is full)
 int rs232_writebyte(int card, int uart, int ch);
 
-// test if a byte is available at the specied serial port (returns 0 if not, other value if so)
+// test if a byte is available at the specified serial port (returns 0 if not, other value if so)
 int rs232_poll(int card, int uart);
 
 // reads a byte from the specified serial port, blocks - so always check rs232_poll first!
@@ -177,7 +177,7 @@ int rs232raw_checkstatus(int rawCRU);
 // writes a byte to the specified serial port - does not check the transmission register!
 void rs232raw_writebyte(int rawCRU, int ch);
 
-// test if a byte is available at the specied serial port (returns 0 if not, other value for true)
+// test if a byte is available at the specified serial port (returns 0 if not, other value for true)
 int rs232raw_poll(int rawCRU);
 
 // reads a byte from the specified serial port - whatever is there. Does not check or
