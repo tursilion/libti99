@@ -92,7 +92,7 @@ void say_data(const char* addr, int len) {
 void speech_start(struct LpcPlaybackCtx* ctx) {
   SPCHWT = SPCH_CMD_EXT; // say loose data in CPU RAM
   delay_asm_12();
-  // Load upto the first 16 bytes
+  // Load up to the first 16 bytes
   int i = 16;
   while(i > 0 && ctx->remaining > 0) {
     SPCHWT = *ctx->addr++;
@@ -102,9 +102,9 @@ void speech_start(struct LpcPlaybackCtx* ctx) {
 }
 
 void speech_continue(struct LpcPlaybackCtx* ctx) {
-  // Next check for buffer low, and add upto 8 bytes at a time
+  // Next check for buffer low, and add up to 8 bytes at a time
   if (((int)call_safe_read()) & SPCH_STATUS_LOW) {
-    // there is room for at least 8 bytes in the FIFO, so send upto 8
+    // there is room for at least 8 bytes in the FIFO, so send up to 8
     int i = 8;
     while (i > 0 && ctx->remaining > 0) {
       SPCHWT = *ctx->addr++;

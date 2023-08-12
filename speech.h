@@ -50,13 +50,13 @@ void say_vocab(int phrase_addr);
 void say_data(const char* addr, int len);
 
 /*
- * Given a LpcPlaybackCtx with a pointer to the LPC data, and the remaining bytes to send, sends the command code and upto the first 16 bytes of the
+ * Given a LpcPlaybackCtx with a pointer to the LPC data, and the remaining bytes to send, sends the command code and up to the first 16 bytes of the
  * LPC data. ctx.remaining and ctx.addr are modified to be used by subsequent speech_continue calls.
  */
 void speech_start(struct LpcPlaybackCtx* ctx);
 
 /*
- * Continue feeding speech data to the synthesizer, upto 8 bytes per call. ctx is modified.
+ * Continue feeding speech data to the synthesizer, up to 8 bytes per call. ctx is modified.
  */
 void speech_continue(struct LpcPlaybackCtx* ctx);
 

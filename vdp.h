@@ -309,7 +309,7 @@ int puts(char *s);
 // printf - writes a string with limited formatting. Only supports a very small subset
 // of formatting at the moment. Supports width (for most fields), s, u, i, d, c and X
 // (X is byte only). This function will call in putchar().
-// Inputs: format string, and varable argument list
+// Inputs: format string, and variable argument list
 // Returns: always returns 0
 int printf(char *str, ...);
 
@@ -388,12 +388,12 @@ void bm_clearscreen();
 
 // bm_setpixel - turn a pixel on
 // Inputs: x - 0-255 - horizontal location
-//         y - 0-192 - vertial location
+//         y - 0-192 - vertical location
 void bm_setpixel(unsigned int x, unsigned int y);
 
 // bm_clearpixel - turn a pixel off
 // Inputs: x - 0-255 - horizontal location
-//         y - 0-192 - vertial location
+//         y - 0-192 - vertical location
 void bm_clearpixel(unsigned int x, unsigned int y);
 
 // bm_drawline - plot a line between two points, mode 0 = clear, mode 1 = set
@@ -443,7 +443,7 @@ void bm_placetile(int c, int r, const unsigned char* pattern);
 extern unsigned char gBitmapColor;
 
 // address of bitmap mode font pattern table in cpu memory. 
-// This can be intialized by calling bm_consolefont(), or
+// This can be initialized by calling bm_consolefont(), or
 // by setting it to your own characterset patterns spanning
 // characters ' ' to '~'
 extern unsigned char* gBmFont;

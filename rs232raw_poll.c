@@ -3,7 +3,7 @@
 
 #include "rs232.h"
 
-// test if a byte is available at the specied serial port (returns 0 if not, other value for true)
+// test if a byte is available at the specified serial port (returns 0 if not, other value for true)
 int rs232raw_poll(int rawCRU) {
     int ret;
 

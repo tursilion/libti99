@@ -1,7 +1,7 @@
  def _start
  def _init_data
 
-# Entry point for C runtime initilization code
+# Entry point for C runtime initialization code
 #
 # This will set initial values for data memory and otherwise create
 # the conditions needed for the C environment
