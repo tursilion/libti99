@@ -37,7 +37,7 @@ extern int conio_cursorFlag;
 extern int conio_cursorChar;
 unsigned char cgetc();
 
-// output a horizonal line
+// output a horizontal line
 void chline(int v);
 
 // output a line at a position
