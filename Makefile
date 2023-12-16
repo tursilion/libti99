@@ -101,6 +101,10 @@ OBJECT_LIST=\
   vdp_bmcolor.o \
   vdp_bmconsolefont.o \
   vdp_bmdrawline.o \
+  vdp_bmasmdrawlinefast.o \
+  vdp_bmclearhlinefast.o \
+  vdp_bmdrawlinefast.o \
+  vdp_bmsethlinefast.o \
   vdp_bmputs.o \
   vdp_bmsetpixel.o \
   vdp_char.o		\
@@ -151,13 +155,13 @@ library: $(OBJECT_LIST)
 	$(AR) rcs $(NAME) $(OBJECT_LIST)
 
 test: library testlib.o $(OBJECT_LIST_EA5) 
-	$(LD) $(OBJECT_LIST_EA5) testlib.o $(LDFLAGS_EA5) -L. -lti99 -o testlib.ea5.elf > ea5.map
+	$(LD) $(OBJECT_LIST_EA5) testlib.o $(LDFLAGS_EA5) -L. -lti99 -o testlib.ea5.elf > ea5_testlib.map
 	$(ELF2EA5) testlib.ea5.elf testlib.ea5.bin
 	$(EA5_SPLIT) testlib.ea5.bin
 	cp TESTLI* $(CLASSIC99_DSK1)
 
 example: library example.o $(OBJECT_LIST_EA5) 
-	$(LD) $(OBJECT_LIST_EA5) example.o $(LDFLAGS_EA5) -L. -lti99 -o example.ea5.elf > ea5.map
+	$(LD) $(OBJECT_LIST_EA5) example.o $(LDFLAGS_EA5) -L. -lti99 -o example.ea5.elf > ea5_example.map
 	$(ELF2EA5) example.ea5.elf example.ea5.bin
 	$(EA5_SPLIT) example.ea5.bin
 	cp EXAMPL* $(CLASSIC99_DSK1)

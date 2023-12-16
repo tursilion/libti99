@@ -15,7 +15,7 @@
 #include "vdp.h"
 #include <stdarg.h>
 
-// get a VRAM address based on the screen mode we're in
+// get a VRAM address to the cursor position based on the screen mode we're in
 extern int conio_x,conio_y;
 unsigned int conio_getvram();
 
