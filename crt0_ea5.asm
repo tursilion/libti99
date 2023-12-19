@@ -48,12 +48,8 @@ bss_clear_end:
 # zero the 'zero value' at >8320
   clr @>8320
 
-# Create the stack - note, old code used 'sp', but
-# there are two possible now depending on your compiler
-# version, so we manually init both. R10 was the old
-# one, and R15 is the new one.
-  li r15, >4000
-  mov r15,r10
+# Create the stack
+  li sp, >4000
 
 # Start running C code
   bl @main
